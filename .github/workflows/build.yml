@@ -1,0 +1,149 @@
+name: Build
+
+# [Chatbox CE] Community Edition build pipeline.
+# Mirrors the VSCodium-style flow: sanitize -> install -> package -> artifacts.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_sanitize:
+        description: 'Re-apply the Community Edition sanitizer (idempotent)'
+        type: boolean
+        default: true
+      release_channel:
+        description: 'Update channel marker embedded in the build'
+        type: string
+        default: alpha
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanitize:
+    name: Verify Community Edition sanitization
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Run sanitizer (apply + verify)
+        run: ./build-scripts/sanitize.sh
+
+      - name: Fail if the sanitizer changed tracked files
+        # The sanitizer is idempotent: running it on a sanitized tree must not
+        # modify anything. A diff here means a gate was lost and had to be
+        # re-applied, which must be committed rather than silently patched.
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::The sanitizer modified tracked files. Commit the result."
+            git diff --stat
+            exit 1
+          fi
+
+  build:
+    name: Build ${{ matrix.os }}
+    needs: sanitize
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact: chatbox-ce-linux
+          - os: macos-latest
+            platform: mac
+            artifact: chatbox-ce-macos
+          - os: windows-latest
+            platform: win
+            artifact: chatbox-ce-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Apply Community Edition sanitizer
+        shell: bash
+        run: ./build-scripts/sanitize.sh
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache electron-builder downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/electron
+            ~/.cache/electron-builder
+          key: ${{ matrix.platform }}-electron-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ matrix.platform }}-electron-
+
+      - name: Build and package (${{ matrix.platform }})
+        shell: bash
+        env:
+          UPDATE_CHANNEL: ${{ inputs.release_channel || 'alpha' }}
+          # Community Edition builds are unsigned.
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          WIN_CSC_LINK: ''
+          WIN_CSC_KEY: ''
+        run: |
+          pnpm exec tsx ./.erb/scripts/clean.js
+          pnpm run build
+          case "${{ matrix.platform }}" in
+            linux) pnpm exec electron-builder build --publish never --linux ;;
+            mac)   pnpm exec electron-builder build --publish never --mac ;;
+            win)   pnpm exec electron-builder build --publish never --win ;;
+          esac
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            release/build/*.AppImage
+            release/build/*.deb
+            release/build/*.dmg
+            release/build/*.zip
+            release/build/*.exe
+            release/build/*.blockmap
+            release/build/*.yml
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-logs
+          path: release/build/*.yml
+          if-no-files-found: ignore
+          retention-days: 3

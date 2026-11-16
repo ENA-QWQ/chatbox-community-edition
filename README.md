@@ -14,6 +14,20 @@
     <em>Your Ultimate AI Copilot on the Desktop. <br />Chatbox is a desktop client for ChatGPT, Claude and other LLMs, available on Windows, Mac, Linux</em>
 </p>
 
+> [!IMPORTANT]
+> **Chatbox Community Edition** is a privacy-preserving fork of
+> [chatboxai/chatbox](https://github.com/chatboxai/chatbox) (GPLv3). It removes
+> every SaaS dependency: no telemetry (Sentry / Google Analytics / Plausible),
+> no account or license servers, no cloud sync, no paid guides and no
+> server-driven "remote dialog" or client notifications. Your conversations,
+> settings, knowledge bases and RAG indexes stay **on your device**.
+>
+> Bring your own model — OpenAI, Anthropic, Gemini, DeepSeek, Ollama, LM Studio
+> or any OpenAI-compatible endpoint.
+>
+> See [Community Edition](#community-edition) for the full list of changes and
+> the build/release instructions.
+
 <p align="center">
 <a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
 <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
@@ -335,6 +349,84 @@ chatbox/
 ## Contact
 
 [Email](mailto:hi@chatboxai.com)
+
+## Community Edition
+
+This fork removes the commercial/SaaS layer of Chatbox while keeping the
+desktop client fully functional with your own model providers.
+
+### What was removed
+
+| Area | Upstream behaviour | Community Edition |
+| --- | --- | --- |
+| Telemetry | Sentry error reporting, Google Analytics (GA4 Measurement Protocol, `device_id`), Plausible page views | **All removed.** No SDK init, no outbound events, no consent switch |
+| Accounts | Chatbox AI sign-in, license keys, plan/quota tracking, "Activated" badges | **Removed.** No account UI, no token storage, no license server calls |
+| Subscriptions | Upgrade prompts, free-plan claim funnels, paid-plan links, expansion packs | **Removed** from every surface (settings, chat errors, knowledge base, welcome card, onboarding guide) |
+| Cloud services | Built-in Chatbox AI search, Chatbox AI cloud document parsing, built-in (subscription) MCP servers, remote model catalog, remote config, remote background skill sync | **Removed / replaced by local equivalents** (local parsing, your own MCP servers, local model registry) |
+| Server-driven UI | Marketing "remote dialog", client notifications, onboarding guide hosted as a billed cloud chat | **Removed.** The guide never runs and never calls the network |
+| Onboarding | Preset demo conversations seeded on first launch | **Removed.** You start with an empty, local session list |
+| Updater | Official auto-upgrade feed (`chatboxai.app/api/auto_upgrade`) | **Disabled.** No request to upstream infrastructure |
+| Reverse-engineering guard | Dormant anti-piracy hostname check | **Removed** |
+
+### What was kept
+
+- The full local AI client: multi-provider chat, image generation with your own
+  endpoints, MCP support, skills, knowledge base and session RAG.
+- **Local-first storage.** Conversations live in IndexedDB (desktop/web) or
+  SQLite (mobile); knowledge base and RAG indexes are local SQLite databases;
+  settings are kept in `config.json` in the app data directory.
+- GitHub-based skill marketplace, self-hosted "team sharing" proxy setups and
+  every provider that does not require a Chatbox account.
+
+### Verification tooling
+
+The fork ships its own verification harness so the guarantees above are
+testable, not just documented:
+
+```bash
+# 1. Verify/re-apply every Community Edition gate (idempotent, 52 checks)
+./build-scripts/sanitize.sh          # macOS / Linux
+pwsh ./build-scripts/sanitize.ps1    # Windows
+
+# 2. Prove the running app performs no telemetry or upstream traffic
+pnpm start:cdp                                  # dev build with a CDP port
+node build-scripts/cdp-network-probe.mjs 45 9333 # expects: external=0 denied=0
+node build-scripts/cdp-ui-assert.mjs 9333         # expects: no SaaS UI entries
+```
+
+`sanitize.sh` is the same script the CI pipeline runs before every build, so a
+merge that re-introduces an upstream SaaS call fails the build instead of
+silently shipping.
+
+### Building
+
+Requirements: Node.js >= 22.13 and pnpm >= 10.17.
+
+```bash
+pnpm install
+pnpm dev             # development mode
+pnpm run package     # package for the current platform
+pnpm run package:all # package for Windows, macOS and Linux (run on each OS)
+```
+
+Community Edition builds are **unsigned**. The upstream `publish` block that
+uploads artifacts to the official bucket was removed, and `custom_win_sign.js`
+is a no-op hook.
+
+### Continuous integration
+
+`.github/workflows/build.yml` builds the app on every push to `main`, on pull
+requests and on manual dispatch:
+
+1. checks out the repository,
+2. runs `build-scripts/sanitize.sh` and fails the job if it had to change
+   anything (the sanitizer must be idempotent),
+3. installs dependencies with a frozen lockfile,
+4. packages the application for the runner's platform,
+5. uploads the installers as workflow artifacts.
+
+macOS `.dmg` (arm64 + x64), Windows NSIS installers (x64 + arm64) and Linux
+AppImage/`.deb` packages (x64 + arm64) are produced.
 
 ## License
 

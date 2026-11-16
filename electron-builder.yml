@@ -116,9 +116,8 @@ directories:
 extraResources:
   - ./assets/**
 
-publish:
-  - provider: s3
-    bucket: chatbox
-    endpoint: https://208624959c9d215edea0720162a740c1.r2.cloudflarestorage.com
-    path: /releases
-    channel: ${env.UPDATE_CHANNEL}
+# [Chatbox CE] the upstream `publish` block uploads artifacts to the official
+# Chatbox S3/R2 bucket. The Community Edition never publishes to upstream
+# infrastructure; releases are distributed as GitHub Actions artifacts (and,
+# optionally, as GitHub Releases by the fork maintainer).
+publish: null
