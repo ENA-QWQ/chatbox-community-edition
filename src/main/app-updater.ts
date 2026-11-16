@@ -1,6 +1,8 @@
 import type { BrowserWindow } from 'electron'
 import { ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
+// [Chatbox CE] official update feed is disabled
+import { CE_DISABLE_OFFICIAL_UPDATER } from '../shared/ce-edition'
 import { getQuitAndInstallArguments } from './installer-command'
 import { getSettings } from './store-node'
 import { getLogger } from './util'
@@ -82,7 +84,8 @@ export class AppUpdater {
     })
 
     const settings = getSettings()
-    if (settings.autoUpdate) {
+    // [Chatbox CE] no automatic update checks against the official feed.
+    if (!CE_DISABLE_OFFICIAL_UPDATER && settings.autoUpdate) {
       setTimeout(() => this.tryUpdate().catch((e) => log.error('auto_updater: startup check failed', e)), 5_000)
       setInterval(
         () => this.tryUpdate().catch((e) => log.error('auto_updater: scheduled check failed', e)),
@@ -93,6 +96,10 @@ export class AppUpdater {
   }
 
   async tryUpdate() {
+    // [Chatbox CE] manual update checks are disabled as well (feed points at official servers).
+    if (CE_DISABLE_OFFICIAL_UPDATER) {
+      return null
+    }
     if (this.isChecking) {
       log.info('auto_updater: check already in progress, skipping')
       return null

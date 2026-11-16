@@ -128,6 +128,10 @@ export default class WebPlatform extends IndexedDBStorage implements Platform {
   }
 
   public async initTracking() {
+    // [Chatbox CE] gtag.js is not loaded; guard against undefined references.
+    if (typeof window.gtag !== 'function') {
+      return
+    }
     const conf = await this.getConfig()
     window.gtag('config', GOOGLE_ANALYTICS_MEASUREMENT_ID, {
       app_name: 'chatbox',
@@ -140,6 +144,10 @@ export default class WebPlatform extends IndexedDBStorage implements Platform {
     })
   }
   public trackingEvent(name: string, params: AnalyticsEventParams) {
+    // [Chatbox CE] gtag.js is not loaded; guard against undefined references.
+    if (typeof window.gtag !== 'function') {
+      return
+    }
     window.gtag('event', name, params)
   }
 

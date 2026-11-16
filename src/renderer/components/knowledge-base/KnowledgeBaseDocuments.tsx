@@ -21,6 +21,8 @@ import {
   KNOWLEDGE_BASE_PARSED_CONTENT_TOO_LARGE_ERROR,
 } from '@shared/knowledge-base'
 import type { FileMeta, KnowledgeBase } from '@shared/types'
+// [Chatbox CE] Chatbox AI cloud parsing suggestion removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { formatFileSize } from '@shared/utils'
 import {
   IconCheck,
@@ -130,6 +132,8 @@ const KnowledgeBaseDocuments: React.FC<KnowledgeBaseDocumentsProps> = ({ knowled
   // Check if we should show the Chatbox AI suggestion for failed files
   // Show suggestion only if there are failed files that are NOT in the exception list
   const shouldShowChatboxAISuggestion = useMemo(() => {
+    // [Chatbox CE] never suggest Chatbox AI cloud parsing
+    if (CE_DISABLE_REMOTE_CONTENT) return false
     if (failedFiles.length === 0) return false
     // Check if any failed file used a parser that should show the suggestion
     return failedFiles.some(

@@ -1,4 +1,6 @@
 import { Alert, Button, Flex, Group, Pill, Stack, Text } from '@mantine/core'
+// [Chatbox CE] Chatbox AI login banner removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { SystemProviders } from '@shared/defaults'
 import type { KnowledgeBase, ProviderModelInfo } from '@shared/types'
 import type { DocumentParserConfig, DocumentParserType } from '@shared/types/settings'
@@ -304,6 +306,10 @@ const KnowledgeBasePage: React.FC = () => {
 
   // Fetch Chatbox AI models configuration
   useEffect(() => {
+    // [Chatbox CE] remote Chatbox AI model config is not fetched
+    if (CE_DISABLE_REMOTE_CONTENT) {
+      return
+    }
     const fetchChatboxAIModels = async () => {
       try {
         const config = await remote.getRemoteConfig('knowledge_base_models')
@@ -539,7 +545,8 @@ const KnowledgeBasePage: React.FC = () => {
           </Group>
         </Stack>
       </Modal>
-      {!isUnsupportedPlatform && chatboxAIKbNeedsLogin && (
+      {/* [Chatbox CE] Chatbox AI knowledge-base login banner removed */}
+      {!CE_DISABLE_REMOTE_CONTENT && !isUnsupportedPlatform && chatboxAIKbNeedsLogin && (
         <Alert variant="light" color="orange" icon={<IconAlertTriangle size={16} />} title={t('Sign in to Chatbox AI')}>
           <Text size="sm">
             {t(

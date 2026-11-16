@@ -51,38 +51,25 @@ describe('initData', () => {
     sessionRepositoryMock.createSessionRows.mockResolvedValue(undefined)
   })
 
-  it('uses all session meta records to decide whether default sessions are needed', async () => {
-    metaStorage.getAllTotal.mockResolvedValue(1)
+  // [Chatbox CE] initData is a no-op: the onboarding demo conversations are
+  // Chatbox marketing content and are never seeded, so storage is not even
+  // consulted.
+  it('never consults storage or seeds default sessions', async () => {
+    metaStorage.getAllTotal.mockResolvedValue(0)
 
     await initData()
 
-    expect(metaStorage.getAllTotal).toHaveBeenCalledTimes(1)
+    expect(metaStorage.getAllTotal).not.toHaveBeenCalled()
     expect(sessionRepositoryMock.createSessionRows).not.toHaveBeenCalled()
     expect(metaStorage.createMany).not.toHaveBeenCalled()
   })
 
-  it('creates default sessions when session meta storage is empty', async () => {
-    metaStorage.getAllTotal.mockResolvedValue(0)
+  it('still resolves successfully when seeded data already exists', async () => {
+    metaStorage.getAllTotal.mockResolvedValue(7)
 
-    await initData()
+    await expect(initData()).resolves.toBeUndefined()
 
-    expect(sessionRepositoryMock.createSessionRows).toHaveBeenCalledWith(
-      {
-        id: 'default-session',
-        name: 'Default Session',
-        type: 'chat',
-      },
-      []
-    )
-    expect(metaStorage.createMany).toHaveBeenCalled()
-  })
-
-  it('does not publish metadata when creating default rows fails', async () => {
-    metaStorage.getAllTotal.mockResolvedValue(0)
-    sessionRepositoryMock.createSessionRows.mockRejectedValueOnce(new Error('session write failed'))
-
-    await expect(initData()).rejects.toThrow('session write failed')
-
+    expect(sessionRepositoryMock.createSessionRows).not.toHaveBeenCalled()
     expect(metaStorage.createMany).not.toHaveBeenCalled()
   })
 })

@@ -1,5 +1,7 @@
 import { DEFAULT_COMPACTION_THRESHOLD } from '@chatbox/core/application/token-estimation/math'
 import { TestId } from '@shared/automation/testids'
+// [Chatbox CE] account page / error-reporting entry removal
+import { CE_DISABLE_REMOTE_CONTENT, CE_DISABLE_TELEMETRY } from '@shared/ce-edition'
 import { Theme } from '@shared/types'
 import { MAX_TOOL_CALLS_BEFORE_CONFIRMATION } from '@shared/utils/tool-call-limit-pause'
 import {
@@ -84,7 +86,16 @@ export function getSettingsNavGroups(): SettingsNavGroup[] {
   ]
 
   return [
-    { title: 'Account', items: [{ key: 'chatbox-ai', label: 'Chatbox AI', noTranslate: true, icon: IconSparkles }] },
+    // [Chatbox CE] the "Account > Chatbox AI" page (login / license / subscription)
+    // is removed from the navigation entirely.
+    ...(CE_DISABLE_REMOTE_CONTENT
+      ? []
+      : [
+          {
+            title: 'Account',
+            items: [{ key: 'chatbox-ai' as const, label: 'Chatbox AI', noTranslate: true, icon: IconSparkles }],
+          },
+        ]),
     {
       title: 'Models',
       items: [
@@ -194,7 +205,7 @@ export const SETTINGS_SEARCH_ENTRIES: SettingsSearchEntry[] = [
   { page: 'data', id: 'archived-chats', label: 'Archived Chats' },
   { page: 'advanced', id: 'proxy', label: 'Network Proxy' },
   { page: 'advanced', id: 'diagnostic-logs', label: 'Diagnostic Logs' },
-  { page: 'advanced', id: 'error-reporting', label: 'Error Reporting' },
+  // [Chatbox CE] 'error-reporting' search entry removed together with the switch.
   ...(platform.type === 'desktop'
     ? ([
         { page: 'about', id: 'auto-launch', label: 'Launch at system startup' },

@@ -2,6 +2,8 @@ import { ActionIcon, Button, Flex, Text } from '@mantine/core'
 import { IconAlertCircle, IconX } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+// [Chatbox CE] neutral banner copy for the unavailable built-in provider
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { useIsSmallScreen } from '@/hooks/useScreenChange'
 import { GLASS_SURFACE_CLASS } from '@/lib/glass-surface'
 import { navigateToSettings } from '@/modals/settings-navigation'
@@ -20,9 +22,12 @@ export function WebSearchUnavailableBanner(props: BannerProps) {
   const [, refreshDismissedState] = useState(0)
   const sessionId = props.sessionId
   const dismissed = dismissedSessionIds.has(sessionId)
-  const stillRequiresChatboxSignIn =
-    getWebSearchConfigurationIssue(webSearchConfiguration, licenseKey) === 'chatbox-ai-sign-in'
-  if (!stillRequiresChatboxSignIn || dismissed || props.errorCount === 0 || props.latestHasError !== false) return null
+  const issue = getWebSearchConfigurationIssue(webSearchConfiguration, licenseKey)
+  // [Chatbox CE] legacy 'build-in' configs surface a neutral provider-unavailable notice
+  const providerUnavailable = CE_DISABLE_REMOTE_CONTENT && issue === 'provider-unavailable'
+  const stillRequiresChatboxSignIn = issue === 'chatbox-ai-sign-in'
+  if (!stillRequiresChatboxSignIn && !providerUnavailable) return null
+  if (dismissed || props.errorCount === 0 || props.latestHasError !== false) return null
 
   const dismiss = () => {
     dismissedSessionIds.add(sessionId)
@@ -43,17 +48,23 @@ export function WebSearchUnavailableBanner(props: BannerProps) {
       <Flex align="center" gap={6} className="min-w-0 flex-1">
         <IconAlertCircle size={14} color="var(--chatbox-tint-warning)" className="shrink-0" />
         <Text size="xs" c="chatbox-secondary" truncate>
-          {isSmallScreen
-            ? t('Web Search was skipped: sign in to Chatbox AI')
-            : t(
-                'Web Search was skipped because Chatbox AI requires sign-in. Future searches in this chat will fail until you sign in or change providers.'
-              )}
+          {providerUnavailable
+            ? t(
+                'Web Search was skipped: the configured search provider is not available in this build. Choose another provider in Settings.'
+              )
+            : isSmallScreen
+              ? t('Web Search was skipped: sign in to Chatbox AI')
+              : t(
+                  'Web Search was skipped because Chatbox AI requires sign-in. Future searches in this chat will fail until you sign in or change providers.'
+                )}
         </Text>
       </Flex>
       <Flex align="center" gap={4} className="shrink-0">
-        <Button h={24} px={10} radius={12} size="compact-xs" variant="light" onClick={() => navigateToSettings()}>
-          {isSmallScreen ? t('Sign in') : t('Sign in to Chatbox AI')}
-        </Button>
+        {!providerUnavailable && (
+          <Button h={24} px={10} radius={12} size="compact-xs" variant="light" onClick={() => navigateToSettings()}>
+            {isSmallScreen ? t('Sign in') : t('Sign in to Chatbox AI')}
+          </Button>
+        )}
         {!isSmallScreen && (
           <Button
             h={24}

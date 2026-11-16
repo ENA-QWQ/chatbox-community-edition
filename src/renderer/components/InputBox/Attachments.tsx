@@ -1,6 +1,8 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { Typography } from '@mui/material'
 import { TestId } from '@shared/automation/testids'
+// [Chatbox CE] neutral copy for legacy cloud-parsed attachments
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { CHATBOX_AI_PARSER_LICENSE_KEY_REQUIRED_ERROR } from '@shared/file-parse-errors'
 import type { SessionAttachmentIndexingStage } from '@shared/types'
 import { IconPlayerPlay } from '@tabler/icons-react'
@@ -32,7 +34,8 @@ function getTranslatedErrorMessage(
 ): string | undefined {
   if (!errorCode) return undefined
   if (isSessionAttachmentRagAuthError(errorCode)) {
-    return t('This large file needs Chatbox AI to finish indexing. Sign in to Chatbox AI, then retry this file.')
+    // [Chatbox CE] there is no Chatbox AI account to sign into; point at model settings
+    return t('This large file could not be indexed. Configure an embedding model in Settings, then retry this file.')
   }
   if (isSessionAttachmentRagIndexingError(errorCode)) {
     return recoveryAction
@@ -313,6 +316,8 @@ export function getParserDisplayName(
     case 'local':
       return t('Parser: Local')
     case 'chatbox-ai':
+      // [Chatbox CE] legacy cloud-parsed attachments show no parser brand
+      if (CE_DISABLE_REMOTE_CONTENT) return undefined
       return t('Parser: {{parser}}', { parser: 'Chatbox AI' })
     case 'mineru':
       return t('Parser: {{parser}}', { parser: 'MinerU' })

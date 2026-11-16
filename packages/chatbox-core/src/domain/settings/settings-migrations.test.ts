@@ -64,7 +64,8 @@ describe('settings migrations', () => {
       },
     })
     expect(migrated.skills.translationEnabled).toBe(true)
-    expect(migrated.extension.documentParser).toEqual({ type: 'chatbox-ai' })
+    // [Chatbox CE] legacy 'none' upgrades to the local parser
+    expect(migrated.extension.documentParser).toEqual({ type: 'local' })
   })
 
   test('moves the version 7 default compaction threshold to the current default and keeps chosen values', () => {
@@ -254,7 +255,8 @@ describe('settings migrations', () => {
       },
       extension: {
         ...defaults.extension,
-        documentParser: version <= 4 ? { type: 'chatbox-ai' } : { type: 'none' },
+        // [Chatbox CE] legacy 'none' migrates to the local parser on every platform
+        documentParser: version <= 4 ? { type: 'local' } : { type: 'none' },
       },
     }
 

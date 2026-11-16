@@ -1,4 +1,6 @@
 import type { DocumentParserType } from '@shared/types/settings'
+// [Chatbox CE] Chatbox AI cloud parser option removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AdaptiveSelect } from '@/components/AdaptiveSelect'
@@ -13,14 +15,16 @@ const ALL_PARSER_OPTIONS: {
   desktopOnly?: boolean
 }[] = [
   { value: 'local', label: 'Local' },
+  // [Chatbox CE] the 'chatbox-ai' cloud parser entry is filtered out below.
   { value: 'chatbox-ai', label: 'Chatbox AI' },
   { value: 'mineru', label: 'MinerU', desktopOnly: true }, // Only available on desktop (requires IPC)
 ]
 
+// [Chatbox CE] descriptions no longer steer users toward Chatbox AI cloud parsing
 const PARSER_DESCRIPTIONS: Record<DocumentParserType, string> = {
-  none: 'Only supports basic text files (.txt, .md, .json, code files, etc.). For PDF and Office files, please switch to Chatbox AI.',
+  none: 'Only supports basic text files (.txt, .md, .json, code files, etc.). For PDF and Office files, please switch to the Local or MinerU parser.',
   local:
-    'Uses built-in document parsing feature, supports common file types, and consumes no compute points. If local parsing fails, Chatbox AI cloud parsing will be used when a license is available and compute points will be consumed.',
+    'Uses built-in document parsing feature, supports common file types, and consumes no compute points. If local parsing fails, switch to another parser such as MinerU.',
   'chatbox-ai':
     'Tries local parsing first without consuming compute points. If local parsing fails, Chatbox AI cloud parsing will be used and compute points will be consumed.',
   mineru: 'Third-party cloud parsing service, supports PDF and most Office files. Requires API token.',
@@ -39,6 +43,8 @@ export function DocumentParserSettings() {
   const parserOptions = useMemo(() => {
     const isDesktop = platform.type === 'desktop'
     return ALL_PARSER_OPTIONS.filter((opt) => {
+      // [Chatbox CE] the Chatbox AI cloud parser is not offered
+      if (CE_DISABLE_REMOTE_CONTENT && opt.value === 'chatbox-ai') return false
       if (opt.desktopOnly && !isDesktop) return false
       if (opt.value === 'local' && !isDesktop && platform.type !== 'mobile') return false
       return true
@@ -56,7 +62,7 @@ export function DocumentParserSettings() {
         description={
           currentParserType === 'local' && platform.type === 'mobile'
             ? t(
-                'Parses text, DOCX, XLSX, and PPTX files locally first (Office files up to 10 MB). If local parsing fails, Chatbox AI cloud parsing will be used when a license is available and compute points will be consumed.'
+                'Parses text, DOCX, XLSX, and PPTX files locally first (Office files up to 10 MB). If local parsing fails, switch to another parser such as MinerU.'
               )
             : t(PARSER_DESCRIPTIONS[currentParserType])
         }

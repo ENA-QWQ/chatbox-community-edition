@@ -2,6 +2,8 @@ import { compareVersions } from 'compare-versions'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'
+// [Chatbox CE] official update feed is disabled
+import { CE_DISABLE_OFFICIAL_UPDATER } from '@shared/ce-edition'
 import { remoteConfigAtom } from '@/stores/atoms'
 import { CHATBOX_BUILD_CHANNEL, CHATBOX_BUILD_PLATFORM } from '@/variables'
 import * as remote from '../packages/remote'
@@ -46,6 +48,10 @@ export default function useVersion() {
   )
   const updateCheckTimer = useRef<NodeJS.Timeout>()
   useEffect(() => {
+    // [Chatbox CE] skip the official update check entirely.
+    if (CE_DISABLE_OFFICIAL_UPDATER) {
+      return
+    }
     const handler = async () => {
       const config = await platform.getConfig()
       const settings = await platform.getSettings()

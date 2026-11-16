@@ -75,7 +75,8 @@ describe('SettingsService', () => {
     const settings = await service.hydrate()
 
     expect(resolveDesktopLike).toHaveBeenCalledOnce()
-    expect(settings.extension.documentParser).toEqual({ type: 'chatbox-ai' })
+    // [Chatbox CE] default parser is local on every platform
+    expect(settings.extension.documentParser).toEqual({ type: 'local' })
   })
 
   test('publishes synchronous updates and restores them through a new service', async () => {

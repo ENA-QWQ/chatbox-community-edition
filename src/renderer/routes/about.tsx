@@ -13,10 +13,13 @@ import {
   Title,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { IconChevronRight, IconFileText, IconHome, IconMessage2, IconPencil, IconRefresh } from '@tabler/icons-react'
+// [Chatbox CE] official-site link list removed; unused icon imports dropped
+import { IconChevronRight, IconRefresh } from '@tabler/icons-react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Fragment, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
+// [Chatbox CE] official updater links gated
+import { CE_DISABLE_OFFICIAL_UPDATER } from '@shared/ce-edition'
 import { ScalableIcon } from '@/components/common/ScalableIcon'
 import BrandGithub from '@/components/icons/BrandGithub'
 import BrandRedNote from '@/components/icons/BrandRedNote'
@@ -58,24 +61,18 @@ function RouteComponent() {
               <Text>{t('about-slogan')}</Text>
               <Text c="chatbox-tertiary">{t('about-introduction')}</Text>
 
+              {/* [Chatbox CE] official privacy/terms links removed: this build collects
+                  and transmits no telemetry; licensing terms follow the GPLv3 of the
+                  upstream project (see LICENSE). */}
               <Flex gap="sm">
                 <Anchor
                   size="sm"
-                  href="https://chatboxai.app/privacy"
+                  href="https://github.com/chatboxai/chatbox/blob/main/LICENSE"
                   target="_blank"
                   underline="hover"
                   c="chatbox-tertiary"
                 >
-                  {t('Privacy Policy')}
-                </Anchor>
-                <Anchor
-                  size="sm"
-                  href="https://chatboxai.app/terms"
-                  target="_blank"
-                  underline="hover"
-                  c="chatbox-tertiary"
-                >
-                  {t('User Terms')}
+                  {t('License')}
                 </Anchor>
               </Flex>
             </Stack>
@@ -101,28 +98,12 @@ function RouteComponent() {
               value="@63844903136"
             />
             <ListItem icon={<BrandWechat className="w-full h-full" />} title={t('WeChat')} right={<WechatQRCode />} />
-          </List>
-
-          <List>
+            {/* [Chatbox CE] official-site / feedback / changelog / FAQ links removed */}
             <ListItem
-              icon={<IconHome className="w-full h-full" />}
-              title={t('Official Site')}
-              link={buildChatboxUrl(`/redirect_app/homepage/${language}`)}
-            />
-            <ListItem
-              icon={<IconPencil className="w-full h-full" />}
-              title={t('Feedback')}
-              link={buildChatboxUrl(`/redirect_app/feedback/${language}`)}
-            />
-            <ListItem
-              icon={<IconFileText className="w-full h-full" />}
-              title={t('Changelog')}
-              link={`https://chatboxai.app/${language.split('-')[0] || 'en'}/help-center/changelog`}
-            />
-            <ListItem
-              icon={<IconMessage2 className="w-full h-full" />}
-              title={t('FAQs')}
-              link={`https://chatboxai.app/${language.split('-')[0] || 'en'}/help-center/chatbox-ai-service-faqs`}
+              icon={<BrandGithub className="w-full h-full" />}
+              title="Issues"
+              link="https://github.com/chatboxai/chatbox/issues"
+              value="chatboxai/chatbox"
             />
           </List>
         </Stack>
@@ -141,6 +122,12 @@ export function UpdateSection({ language, needCheckUpdate }: { language: string;
 
   if (isDesktop) {
     return <DesktopUpdateSection />
+  }
+
+  // [Chatbox CE] mobile/web "check update" external links point at official
+  // servers; the update hint is not offered in the Community Edition.
+  if (CE_DISABLE_OFFICIAL_UPDATER) {
+    return null
   }
 
   // Mobile and Web both use external link
@@ -256,13 +243,7 @@ function DesktopUpdateSection() {
               {t('Retry')}
             </Button>
           </Flex>
-          <Anchor
-            size="xs"
-            c="chatbox-tertiary"
-            onClick={() => platform.openLink(buildChatboxUrl('/redirect_app/homepage/'))}
-          >
-            {t('Download from official site')}
-          </Anchor>
+          {/* [Chatbox CE] "Download from official site" link removed */}
         </Stack>
       )
 

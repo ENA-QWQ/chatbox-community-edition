@@ -38,7 +38,10 @@ allowBuilds:
   electron: true
   # Builds the native image-processing binding required by the retained
   # @capacitor/assets development dependency (see `pnpm why sharp`).
-  sharp: true
+  # [Chatbox CE] disabled: sharp only serves the Capacitor asset pipeline, which
+  # is not part of the desktop CE build; its download also fails behind TLS-
+  # intercepting proxies. Re-enable if you need `capacitor assets`.
+  sharp: false
 
   # The remaining install scripts are either compile-from-source fallbacks whose
   # prebuilt binaries already arrive through optionalDependencies

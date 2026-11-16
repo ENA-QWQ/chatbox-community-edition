@@ -1,5 +1,7 @@
 import { Button, Flex, Image, Indicator, ScrollArea, Stack, Text } from '@mantine/core'
 import { AutomationAdjacentAttr, TestId } from '@shared/automation/testids'
+// [Chatbox CE] Chatbox AI provider entry removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { ModelProviderEnum, type ProviderBaseInfo } from '@shared/types'
 import { IconChevronRight, IconPlus } from '@tabler/icons-react'
 import { Link, useRouterState } from '@tanstack/react-router'
@@ -35,6 +37,11 @@ export function ProviderList({ providers, onAddProvider }: ProviderListProps) {
 
   // Sort providers: ChatboxAI first, then activated/custom providers, then featured presets
   const sortedProviders = useMemo(() => {
+    // [Chatbox CE] the Chatbox AI provider (login / license / gateway billing)
+    // is never listed.
+    if (CE_DISABLE_REMOTE_CONTENT) {
+      return providers.filter((p) => p.id !== ModelProviderEnum.ChatboxAI)
+    }
     const chatboxAI = providers.filter((p) => p.id === ModelProviderEnum.ChatboxAI)
     const activated: ProviderBaseInfo[] = []
     const featured: ProviderBaseInfo[] = []

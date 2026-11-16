@@ -1,6 +1,8 @@
 import { ActionIcon, Button, Flex, Loader, Text } from '@mantine/core'
 import { Link } from '@mui/material'
 import { TestId } from '@shared/automation/testids'
+// [Chatbox CE] free-trial banner removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { aiProviderNameHash } from '@shared/models'
 import type { Message } from '@shared/types'
 import { ModelProviderEnum } from '@shared/types/provider'
@@ -319,7 +321,8 @@ export function GenericMessageError(props: {
         <ErrorTip presentation={presentation} model={msg.model} customProviderName={customProviderName} />
       </div>
       {isConfiguredApiError && licenseKey && <ChatboxAIQuotaHint licenseKey={licenseKey} />}
-      {isConfiguredApiError && !isLoggedIn && !licenseKey && (
+      {/* [Chatbox CE] "Sign in to Chatbox AI" license banner removed */}
+      {!CE_DISABLE_REMOTE_CONTENT && isConfiguredApiError && !isLoggedIn && !licenseKey && (
         <div className="text-sm leading-5 text-[var(--chatbox-tint-secondary)]">
           <Trans
             i18nKey="<OpenSettingButton>Sign in to Chatbox AI</OpenSettingButton> to use your account license."
@@ -392,7 +395,8 @@ export function GenericMessageError(props: {
           />
         </div>
       )}
-      {!licenseKey && msg.aiProvider !== ModelProviderEnum.ChatboxAI && (
+      {/* [Chatbox CE] Chatbox AI free trial banner removed */}
+      {!CE_DISABLE_REMOTE_CONTENT && !licenseKey && msg.aiProvider !== ModelProviderEnum.ChatboxAI && (
         <div className={classes.trial}>
           <Tooltip
             label={t(

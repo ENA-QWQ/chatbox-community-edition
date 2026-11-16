@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
+// [Chatbox CE] built-in (subscription) MCP servers section removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
@@ -67,7 +69,8 @@ export function RouteComponent() {
           : t('Tools from MCP servers are available to models that support tool use.')
       }
     >
-      <BuiltinServersSection />
+      {/* [Chatbox CE] Builtin subscription MCP servers section removed - license-metered cloud service */}
+      {CE_DISABLE_REMOTE_CONTENT ? null : <BuiltinServersSection />}
       <CustomServersSection installConfig={installConfig} />
     </SettingsPage>
   )

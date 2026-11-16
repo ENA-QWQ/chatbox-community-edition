@@ -1,4 +1,6 @@
 import { resolveSessionMode } from '@chatbox/core/session/mode-policy'
+// [Chatbox CE] Chatbox AI web-search provider filtered from the input-box panel
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import {
   ActionIcon,
   Badge,
@@ -767,7 +769,9 @@ const AgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProps>(fun
         <>
           <SubPanelHeader title={t('Web Search')} settingsPath="/web-search" />
           <Divider my={4} />
-          {WEB_SEARCH_PROVIDERS.map((provider) => {
+          {/* [Chatbox CE] 'build-in' (Chatbox AI Search) not offered in the panel */}
+          {WEB_SEARCH_PROVIDERS.filter((provider) => !(CE_DISABLE_REMOTE_CONTENT && provider.value === 'build-in')).map(
+            (provider) => {
             const available = isProviderAvailable(provider.value)
             const isSelected = webSearchProvider === provider.value
             return (
@@ -804,7 +808,8 @@ const AgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProps>(fun
                 </Flex>
               </Tooltip>
             )
-          })}
+            },
+          )}
         </>
       )
     }

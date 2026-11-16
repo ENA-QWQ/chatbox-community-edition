@@ -11,6 +11,8 @@ import { Box, Grid } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { shouldNavigateToStartPage, shouldSkipOnboardingGuide, splitLaunchPath } from '@shared/dev-launch'
+// [Chatbox CE] remote content channels are disabled
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { type RemoteConfig, Theme } from '@shared/types'
 import { useQuery } from '@tanstack/react-query'
 import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
@@ -174,6 +176,12 @@ function Root() {
       void prefetchModelRegistry()
 
       const syncRemoteConfig = async () => {
+        // [Chatbox CE] never fetch remote config; use a static local default.
+        if (CE_DISABLE_REMOTE_CONTENT) {
+          const localDefault = { setting_chatboxai_first: false } as RemoteConfig
+          setRemoteConfig(async (prev) => ({ ...(await prev), ...localDefault }))
+          return localDefault
+        }
         const remoteConfig = await remote
           .getRemoteConfig('setting_chatboxai_first')
           .catch(() => ({ setting_chatboxai_first: false }) as RemoteConfig)
@@ -182,7 +190,11 @@ function Root() {
       }
 
       const launchOptions = getRendererDevLaunchOptions()
-      const skipOnboarding = shouldSkipOnboardingGuide(launchOptions)
+      // [Chatbox CE] the onboarding guide is a cloud chat funnel
+      // (api.chatboxai.app/v1/guide/chat, a billed streaming call that streams
+      // login / claim-license steps); always mark onboarding completed so the
+      // app never auto-navigates new users into it.
+      const skipOnboarding = CE_DISABLE_REMOTE_CONTENT || shouldSkipOnboardingGuide(launchOptions)
       if (skipOnboarding) {
         onboardingStore.getState().markCompleted()
         initialized.current = true
@@ -425,10 +437,9 @@ function Root() {
       {/* <OpenAttachLinkDialog /> */}
       {/* 图片预览 */}
       <PictureDialog />
-      {/* 似乎是从后端拉一个弹窗的配置 */}
-      <RemoteDialogWindow />
-      {/* 一次性客户端通知，与现有远程弹窗和更新提示保持独立 */}
-      <ClientNotificationWindow />
+      {/* [Chatbox CE] remote marketing dialog / client notifications are disabled */}
+      {CE_DISABLE_REMOTE_CONTENT ? null : <RemoteDialogWindow />}
+      {CE_DISABLE_REMOTE_CONTENT ? null : <ClientNotificationWindow />}
       {/* IndexedDB schema 与当前版本不匹配时的升级/刷新引导 */}
       <DbSchemaGuardDialog />
       <BackupTaskOverlay />

@@ -1,5 +1,7 @@
 import * as Sentry from '@sentry/node'
 import { app } from 'electron'
+// [Chatbox CE] telemetry master switch
+import { CE_DISABLE_TELEMETRY } from '../../shared/ce-edition'
 import type { SentryAdapter, SentryScope } from '../../shared/utils/sentry_adapter'
 import { createSentryEventProcessor, normalizeErrorForSentry } from '../../shared/utils/sentry_policy'
 import { getSettings, store } from '../store-node'
@@ -13,6 +15,10 @@ const processSentryEvent = createSentryEventProcessor({
 let sentryInitialized = false
 
 function initSentry(): boolean {
+  // [Chatbox CE] Sentry is never initialized in the Community Edition.
+  if (CE_DISABLE_TELEMETRY) {
+    return false
+  }
   if (sentryInitialized) {
     return true
   }
@@ -85,10 +91,18 @@ store.onDidAnyChange((settings, previousSettings) => {
  */
 export class MainSentryAdapter implements SentryAdapter {
   captureException(error: unknown): void {
+    // [Chatbox CE] never report when the SDK was not initialized
+    if (CE_DISABLE_TELEMETRY || !sentryInitialized) {
+      return
+    }
     Sentry.captureException(normalizeErrorForSentry(error))
   }
 
   withScope(callback: (scope: SentryScope) => void): void {
+    // [Chatbox CE] never report when the SDK was not initialized
+    if (CE_DISABLE_TELEMETRY || !sentryInitialized) {
+      return
+    }
     Sentry.withScope((sentryScope) => {
       const scope: SentryScope = {
         setTag(key: string, value: string): void {
@@ -106,5 +120,9 @@ export class MainSentryAdapter implements SentryAdapter {
 export const sentry = new MainSentryAdapter()
 
 export function flushSentry(timeout: number): Promise<boolean> {
+  // [Chatbox CE] nothing to flush when the SDK was not initialized
+  if (CE_DISABLE_TELEMETRY || !sentryInitialized) {
+    return Promise.resolve(true)
+  }
   return Sentry.flush(timeout)
 }

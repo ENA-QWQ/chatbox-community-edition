@@ -22,6 +22,14 @@ vi.mock('@/packages/remote', () => ({
   getChatboxAIModelList: mocks.getChatboxAIModelList,
   getLicenseDetailRealtime: mocks.getLicenseDetailRealtime,
 }))
+// [Chatbox CE] this suite validates the upstream catalog refresh behavior that
+// is still shipped behind the CE flags, so the flags are switched off here.
+vi.mock('@shared/ce-edition', () => ({
+  CE_EDITION: false,
+  CE_DISABLE_TELEMETRY: false,
+  CE_DISABLE_REMOTE_CONTENT: false,
+  CE_DISABLE_OFFICIAL_UPDATER: false,
+}))
 vi.mock('@/stores/premiumActions', () => ({ useAutoValidate: () => true }))
 vi.mock('@/stores/settingsStore', () => ({
   useLanguage: () => 'en',

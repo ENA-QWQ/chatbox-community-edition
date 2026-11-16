@@ -1,6 +1,9 @@
 import { z } from 'zod'
 
-export const DEFAULT_ENABLED_BUILTIN_SKILL_NAMES = ['chatbox-product-info', 'vibedrop'] as const
+// [Chatbox CE] Vibedrop is a third-party SaaS hosting service; it is no longer
+// enabled by default in the Community Edition (the skill remains installed and
+// can be enabled manually in Settings → Skills).
+export const DEFAULT_ENABLED_BUILTIN_SKILL_NAMES = ['chatbox-product-info'] as const
 
 // ===== Skill Source Types =====
 

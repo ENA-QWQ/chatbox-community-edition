@@ -2,6 +2,8 @@ import { registerPlugin } from '@capacitor/core'
 import { Box, Button, Flex, Image, NavLink, Stack, Text } from '@mantine/core'
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import { TestId } from '@shared/automation/testids'
+// [Chatbox CE] Help button no longer opens the in-app sales funnel
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import {
   IconCode,
   IconDownload,
@@ -331,6 +333,11 @@ export default function Sidebar() {
                   aria-label={t('Help')}
                   color="chatbox-tertiary"
                   onClick={() => {
+                    // [Chatbox CE] the in-app /guide is a cloud sales funnel; open the project instead
+                    if (CE_DISABLE_REMOTE_CONTENT) {
+                      void platform.openLink('https://github.com/chatboxai/chatbox#readme')
+                      return
+                    }
                     navigate({ to: '/guide' })
                     closeOnSmallScreen()
                   }}

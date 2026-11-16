@@ -1,4 +1,6 @@
 import { SessionHeaderSchema } from '@shared/types'
+// [Chatbox CE] preset demo conversations are not seeded
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { sessionRepository } from '@/app/renderer-application'
 import { defaultSessionsForCN, defaultSessionsForEN } from '@/packages/initial_data'
 import platform from '@/platform'
@@ -10,6 +12,11 @@ export async function initData() {
 }
 
 async function initSessionsIfNeeded() {
+  // [Chatbox CE] the onboarding demo conversations are Chatbox marketing
+  // content; the Community Edition starts with an empty session list.
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    return
+  }
   const metaStorage = await getMetaStorage()
   const total = await metaStorage.getAllTotal()
   if (total > 0) {

@@ -2,6 +2,9 @@
  * Guide API utilities for communicating with the backend guide chat endpoint
  */
 
+// [Chatbox CE] the guide chat endpoint is a billed official-server call; it is
+// never reached in the Community Edition (see sendGuideMessage guard).
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { getAPIOrigin } from '@/packages/remote'
 import { apiRequest } from '@/utils/request'
 import { USE_LOCAL_API } from '@/variables'
@@ -41,6 +44,10 @@ export async function sendGuideMessage(
     signal?: AbortSignal
   }
 ): Promise<Response> {
+  // [Chatbox CE] hard stop: never call api.chatboxai.app/v1/guide/chat.
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    throw new Error('[Chatbox CE] the onboarding guide chat API is disabled in the Community Edition')
+  }
   const body: GuideRequest = {
     messages,
     device_id: deviceId,

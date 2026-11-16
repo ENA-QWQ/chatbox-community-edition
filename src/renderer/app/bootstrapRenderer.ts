@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 
 import { startChatboxAPIOriginProbing } from '@shared/request/chatboxai_pool'
+// [Chatbox CE] master switches — see src/shared/ce-edition.ts
+import { CE_DISABLE_REMOTE_CONTENT, CE_DISABLE_TELEMETRY } from '@shared/ce-edition'
 import type { Settings } from '@shared/types'
 import { getDefaultStore } from 'jotai'
 import localforage from 'localforage'
@@ -47,14 +49,17 @@ function isSessionWorkInFlight(): boolean {
 export async function initializeRenderer(): Promise<void> {
   log.info('initializeApp')
   const apiOriginStore = localforage.createInstance({ name: 'chatboxcache' })
-  startChatboxAPIOriginProbing({
-    storage: {
-      get: (key) => apiOriginStore.getItem(key),
-      set: async (key, value) => {
-        await apiOriginStore.setItem(key, value)
+  // [Chatbox CE] disabled: proactive probing of official Chatbox API origins.
+  if (!CE_DISABLE_REMOTE_CONTENT) {
+    startChatboxAPIOriginProbing({
+      storage: {
+        get: (key) => apiOriginStore.getItem(key),
+        set: async (key, value) => {
+          await apiOriginStore.setItem(key, value)
+        },
       },
-    },
-  })
+    })
+  }
   await (await import('./renderer-backup')).rendererBackupService.cleanupBeforeBootstrap()
 
   let migrationError: unknown
@@ -67,12 +72,16 @@ export async function initializeRenderer(): Promise<void> {
   }
 
   // Migrate persisted consent before any settings-backed telemetry initializes.
-  await initSentry()
-  void initGoogleAnalyticsTracking()
-  void initPlausibleTracking((onResolved) => {
-    router.subscribe('onResolved', ({ hrefChanged }) => onResolved(hrefChanged))
-  })
-  void initJkTracking()
+  // [Chatbox CE] all four telemetry initializers are gated off; upstream tests
+  // for the setup modules themselves remain untouched and green.
+  if (!CE_DISABLE_TELEMETRY) {
+    await initSentry()
+    void initGoogleAnalyticsTracking()
+    void initPlausibleTracking((onResolved) => {
+      router.subscribe('onResolved', ({ hrefChanged }) => onResolved(hrefChanged))
+    })
+    void initJkTracking()
+  }
 
   if (migrationError !== undefined) {
     const migrationErrorContext = getMigrationErrorContext(migrationError)

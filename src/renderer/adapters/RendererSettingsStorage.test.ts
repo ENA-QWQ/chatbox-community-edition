@@ -39,7 +39,8 @@ describe('Electron host settings recovery', () => {
   it('preserves first-run defaults', async () => {
     mocks.platform.getSettings.mockResolvedValue(createDefaultSettings())
     const service = new SettingsService(new RendererSettingsStorage(), { isDesktopLike: true })
-    expect((await service.hydrate()).allowReportingAndTracking).toBe(true)
+    // [Chatbox CE] telemetry consent defaults to false
+    expect((await service.hydrate()).allowReportingAndTracking).toBe(false)
     expect(mocks.storage.setItem).not.toHaveBeenCalled()
     service.dispose()
   })

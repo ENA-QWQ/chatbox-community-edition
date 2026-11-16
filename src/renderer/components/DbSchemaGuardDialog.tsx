@@ -1,6 +1,6 @@
 import { Button, Modal, Progress, Stack, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
-import { buildChatboxUrl } from '@/packages/remote'
+// [Chatbox CE] buildChatboxUrl import removed with the official check-update link
 import platform from '@/platform'
 import { useDbSchemaGuardStore } from '@/storage/db-schema-guard'
 import { installUpdate, useUpdateStore } from '@/stores/updateStore'
@@ -82,7 +82,7 @@ export default function DbSchemaGuardDialog() {
   return null
 }
 
-function UpdateAction({ language }: { language: string }) {
+function UpdateAction(_props: { language: string }) {
   const { t } = useTranslation()
   const status = useUpdateStore((s) => s.status)
   const progress = useUpdateStore((s) => s.progress)
@@ -94,12 +94,7 @@ function UpdateAction({ language }: { language: string }) {
     return (
       <Stack gap="xs">
         <Button onClick={() => window.location.reload()}>{t('Reload')}</Button>
-        <Button
-          variant="default"
-          onClick={() => platform.openLink(buildChatboxUrl(`/redirect_app/check_update/${language}`))}
-        >
-          {t('Check Update')}
-        </Button>
+        {/* [Chatbox CE] official check-update redirect link removed */}
       </Stack>
     )
   }

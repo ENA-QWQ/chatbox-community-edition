@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { getHomeWelcomeCardMode } from './homeWelcomeCard'
 
-describe('getHomeWelcomeCardMode', () => {
+// [Chatbox CE] the Community Edition always suppresses the welcome card, so the
+// upstream mode matrix collapses to a single outcome.
+describe('getHomeWelcomeCardMode (CE)', () => {
   it('returns "none" when providerCount > 0', () => {
     expect(
       getHomeWelcomeCardMode({
@@ -25,7 +27,7 @@ describe('getHomeWelcomeCardMode', () => {
     ).toBe('none')
   })
 
-  it('returns "no-license" when logged in but no license and no providers', () => {
+  it('returns "none" when logged in but no license and no providers', () => {
     expect(
       getHomeWelcomeCardMode({
         providerCount: 0,
@@ -33,10 +35,10 @@ describe('getHomeWelcomeCardMode', () => {
         hasLicense: false,
         hasExpiredLicense: false,
       })
-    ).toBe('no-license')
+    ).toBe('none')
   })
 
-  it('returns "expired-license" when logged in, no license, and hasExpiredLicense is true', () => {
+  it('returns "none" when logged in, no license, and hasExpiredLicense is true', () => {
     expect(
       getHomeWelcomeCardMode({
         providerCount: 0,
@@ -44,10 +46,10 @@ describe('getHomeWelcomeCardMode', () => {
         hasLicense: false,
         hasExpiredLicense: true,
       })
-    ).toBe('expired-license')
+    ).toBe('none')
   })
 
-  it('returns "login" when not logged in, no license, no providers', () => {
+  it('returns "none" when not logged in, no license, no providers', () => {
     expect(
       getHomeWelcomeCardMode({
         providerCount: 0,
@@ -55,7 +57,7 @@ describe('getHomeWelcomeCardMode', () => {
         hasLicense: false,
         hasExpiredLicense: false,
       })
-    ).toBe('login')
+    ).toBe('none')
   })
 
   it('returns "none" during store review even when login card would otherwise show', () => {

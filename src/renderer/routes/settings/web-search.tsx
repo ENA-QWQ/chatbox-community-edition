@@ -1,5 +1,7 @@
 import { Flex, Select, Text, UnstyledButton } from '@mantine/core'
 import type { Settings } from '@shared/types'
+// [Chatbox CE] free-license claim banner removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { IconCheck, IconX } from '@tabler/icons-react'
 import { createFileRoute } from '@tanstack/react-router'
 import { ofetch } from 'ofetch'
@@ -101,7 +103,13 @@ export function RouteComponent() {
               id={fieldId}
               comboboxProps={{ withinPortal: true, withArrow: true }}
               aria-label={t('Search Provider') ?? undefined}
-              data={WEB_SEARCH_PROVIDERS.map((p) => ({ value: p.value, label: p.label }))}
+              data={
+                // [Chatbox CE] 'build-in' (Chatbox AI Search) filtered out of the provider list
+                WEB_SEARCH_PROVIDERS.filter((p) => !(CE_DISABLE_REMOTE_CONTENT && p.value === 'build-in')).map((p) => ({
+                  value: p.value,
+                  label: p.label,
+                }))
+              }
               value={provider}
               onChange={(value) => value && updateWebSearch({ provider: value as WebSearchProviderValue })}
             />
@@ -209,31 +217,35 @@ export function RouteComponent() {
         </SettingsSection>
       )}
 
-      {provider !== 'build-in' && !licenseKey && (
-        <Tooltip
-          label={t(
-            'Note: If you have never had a license before, you can claim it after logging in on the official website. Quota refreshed daily.'
-          )}
-          withArrow
-          multiline
-          maw={280}
-          position="bottom-start"
-        >
-          <UnstyledButton
-            className="self-start px-1 text-xs text-chatbox-tint-tertiary"
-            onClick={() => {
-              trackJkClickEvent(JK_EVENTS.FREE_LICENSE_CLAIM_CLICK, {
-                pageName: JK_PAGE_NAMES.SETTING_PAGE,
-                content: 'settings_websearch',
-              })
-              platform.openLink('https://chatboxai.app/login')
-            }}
+      {/* [Chatbox CE] "try Chatbox AI" free-license claim banner removed */}
+      {CE_DISABLE_REMOTE_CONTENT ? null : (
+        provider !== 'build-in' &&
+        !licenseKey && (
+          <Tooltip
+            label={t(
+              'Note: If you have never had a license before, you can claim it after logging in on the official website. Quota refreshed daily.'
+            )}
+            withArrow
+            multiline
+            maw={280}
+            position="bottom-start"
           >
-            {t('You can ')}
-            <span className="text-chatbox-tint-brand underline decoration-dotted">{t('try Chatbox AI')}</span>
-            {t(' for free now!')}
-          </UnstyledButton>
-        </Tooltip>
+            <UnstyledButton
+              className="self-start px-1 text-xs text-chatbox-tint-tertiary"
+              onClick={() => {
+                trackJkClickEvent(JK_EVENTS.FREE_LICENSE_CLAIM_CLICK, {
+                  pageName: JK_PAGE_NAMES.SETTING_PAGE,
+                  content: 'settings_websearch',
+                })
+                platform.openLink('https://chatboxai.app/login')
+              }}
+            >
+              {t('You can ')}
+              <span className="text-chatbox-tint-brand underline decoration-dotted">{t('try Chatbox AI')}</span>
+              {t(' for free now!')}
+            </UnstyledButton>
+          </Tooltip>
+        )
       )}
     </SettingsPage>
   )

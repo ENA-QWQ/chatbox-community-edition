@@ -3,6 +3,8 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { Anchor, Button, Flex, Stack, Text, Title } from '@mantine/core'
 import { TestId } from '@shared/automation/testids'
+// [Chatbox CE] Chatbox AI Search provider removal from slot selectors
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { SystemProviders } from '@shared/defaults'
 import type { ProviderModelInfo } from '@shared/types'
 import { ModelProviderEnum } from '@shared/types'
@@ -415,7 +417,7 @@ export function RouteComponent() {
           void NiceModal.show('confirm', {
             title: t('Reset model selections?'),
             message: t(
-              'This replaces your selections on this page with automatic models and Chatbox services. Your provider credentials are kept. Some services require Chatbox AI.'
+              'This replaces your selections on this page with automatic models. Your provider credentials are kept.'
             ),
             confirmText: t('Reset selections'),
             cancelText: t('Cancel'),
@@ -577,8 +579,12 @@ function SlotSelector(
   }
 
   if (props.slotId === 'parser') {
+    // [Chatbox CE] the Chatbox AI cloud parser is not offered in slot selectors
+    const parserTypes = CE_DISABLE_REMOTE_CONTENT
+      ? customParserTypes(parserHost())
+      : (['chatbox-ai', ...customParserTypes(parserHost())] as DocumentParserType[])
     const options = withCurrentOption(
-      ['chatbox-ai', ...customParserTypes(parserHost())].map((value) => ({
+      parserTypes.map((value) => ({
         value,
         label: t(PARSER_OPTION_LABELS[value]),
       })),
@@ -598,10 +604,13 @@ function SlotSelector(
   }
 
   if (props.slotId === 'search') {
-    const options = WEB_SEARCH_PROVIDERS.map((item) => ({
-      value: item.value,
-      label: item.value === 'build-in' ? t('Chatbox AI Search') : item.label,
-    }))
+    // [Chatbox CE] the 'build-in' (Chatbox AI Search) provider is not offered
+    const options = WEB_SEARCH_PROVIDERS.filter((item) => !(CE_DISABLE_REMOTE_CONTENT && item.value === 'build-in')).map(
+      (item) => ({
+        value: item.value,
+        label: item.value === 'build-in' ? t('Chatbox AI Search') : item.label,
+      })
+    )
     return (
       <AdaptiveSelect
         comboboxProps={{ withinPortal: true, withArrow: true }}

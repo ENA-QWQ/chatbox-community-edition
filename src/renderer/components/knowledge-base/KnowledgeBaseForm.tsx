@@ -1,5 +1,7 @@
 import { Button, Group, Input, PasswordInput, Pill, Radio, Select, Stack, Text } from '@mantine/core'
 import type { DocumentParserConfig, DocumentParserType } from '@shared/types/settings'
+// [Chatbox CE] Chatbox AI cloud parser / provider-mode options removed
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { IconCheck, IconTrash, IconX } from '@tabler/icons-react'
 import type React from 'react'
 import { useCallback, useState } from 'react'
@@ -89,6 +91,11 @@ export const KnowledgeBaseChatboxAIInfo: React.FC<KnowledgeBaseChatboxAIInfoProp
 }) => {
   const { t } = useTranslation()
 
+  // [Chatbox CE] the Chatbox AI subscription info card is not shown
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    return null
+  }
+
   return (
     <Stack gap="sm">
       {showModelsLabel && (
@@ -130,7 +137,8 @@ export const KnowledgeBaseProviderModeSelect: React.FC<KnowledgeBaseProviderMode
       onChange={(value) => onChange(value as 'chatbox-ai' | 'custom')}
     >
       <Group mt="xs">
-        <Radio value="chatbox-ai" label="Chatbox AI" disabled={isChatboxAIDisabled} />
+        {/* [Chatbox CE] the 'chatbox-ai' provider mode is not offered */}
+        {CE_DISABLE_REMOTE_CONTENT ? null : <Radio value="chatbox-ai" label="Chatbox AI" disabled={isChatboxAIDisabled} />}
         <Radio value="custom" label={t('Custom')} />
       </Group>
     </Radio.Group>
@@ -315,10 +323,13 @@ export const DocumentParserSelector: React.FC<DocumentParserSelectorProps> = ({
       <Select
         label={t('Document Parser')}
         description={t('Parser used to process uploaded documents')}
-        data={PARSER_OPTIONS.map((opt) => ({
-          value: opt.value,
-          label: t(opt.label),
-        }))}
+        data={
+          // [Chatbox CE] the 'chatbox-ai' cloud parser is not offered
+          PARSER_OPTIONS.filter((opt) => !(CE_DISABLE_REMOTE_CONTENT && opt.value === 'chatbox-ai')).map((opt) => ({
+            value: opt.value,
+            label: t(opt.label),
+          }))
+        }
         value={parserConfig.type}
         onChange={handleParserTypeChange}
         allowDeselect={false}

@@ -58,12 +58,13 @@ describe('main-process settings boundary', () => {
   )
 
   it.each([false, true])('preserves valid settings and explicit telemetry consent (%s)', async (enabled) => {
+    // [Chatbox CE] Sentry never initializes, whatever the consent flag says.
     const settings = { ...defaults.settings(), allowReportingAndTracking: enabled, fontSize: 18 }
     mocks.persistedSettings = settings
     const { getSettings } = await import('./store-node')
     expect(getSettings()).toBe(settings)
     await import('./adapters/sentry')
-    expect(mocks.sentryInit).toHaveBeenCalledTimes(enabled ? 1 : 0)
+    expect(mocks.sentryInit).not.toHaveBeenCalled()
     expect(mocks.set).not.toHaveBeenCalled()
   })
 
@@ -75,14 +76,10 @@ describe('main-process settings boundary', () => {
     expect(mocks.set).not.toHaveBeenCalled()
   })
 
-  it('suppresses reporting if settings become null after Sentry initialization', async () => {
+  it('[Chatbox CE] never initializes Sentry even when consent was granted', async () => {
     mocks.persistedSettings = { ...defaults.settings(), allowReportingAndTracking: true }
     await import('./adapters/sentry')
-    const options = mocks.sentryInit.mock.calls[0][0] as {
-      beforeSend: (event: object, hint: object) => unknown
-    }
-    mocks.persistedSettings = null
-    expect(options.beforeSend({}, {})).toBeNull()
+    expect(mocks.sentryInit).not.toHaveBeenCalled()
     expect(mocks.set).not.toHaveBeenCalled()
   })
 })

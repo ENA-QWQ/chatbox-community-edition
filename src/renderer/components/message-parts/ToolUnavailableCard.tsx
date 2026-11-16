@@ -2,6 +2,8 @@ import { Box, Button, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core
 import { IconAlertCircle, IconArrowUpRight, IconWorldOff } from '@tabler/icons-react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+// [Chatbox CE] no Chatbox AI sign-in card for search errors
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { ChatboxAIErrorMessage } from '@/components/common/ChatboxAIErrorMessage'
 import { useIsSmallScreen } from '@/hooks/useScreenChange'
 import { GLASS_FILL_CLASS } from '@/lib/glass-surface'
@@ -26,7 +28,9 @@ async function openSettings(path?: string): Promise<void> {
 export const ToolUnavailableCard: FC<ToolUnavailableCardProps> = ({ toolLabel, toolName, errorCode }) => {
   const { t } = useTranslation()
   const isSmallScreen = useIsSmallScreen()
-  const isChatboxSearchSignInRequired = toolName === 'web_search' && errorCode === CHATBOX_SEARCH_LICENSE_REQUIRED
+  // [Chatbox CE] the sign-in card is never shown; generic error rendering applies
+  const isChatboxSearchSignInRequired =
+    !CE_DISABLE_REMOTE_CONTENT && toolName === 'web_search' && errorCode === CHATBOX_SEARCH_LICENSE_REQUIRED
   const ToolErrorIcon = toolName === 'web_search' || toolName === 'parse_link' ? IconWorldOff : IconAlertCircle
 
   return (

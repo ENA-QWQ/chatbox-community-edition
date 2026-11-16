@@ -2,6 +2,8 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import type { SkillInfo, SkillMetadata } from '@shared/types/skills'
+// [Chatbox CE] remote content master switch
+import { CE_DISABLE_REMOTE_CONTENT } from '../../shared/ce-edition'
 import { app } from 'electron'
 import { getLogger } from '../util'
 import { builtinSkills } from './builtin'
@@ -287,6 +289,13 @@ function buildMetadataFromDetail(detail: RemoteSkillDetail): SkillMetadata {
  * @returns 是否有快照被更新
  */
 export async function syncBuiltinSkills(lang?: string): Promise<boolean> {
+  // [Chatbox CE] remote builtin-skill sync is disabled; the packaged seed
+  // snapshot (origin='seed') is the single source of truth.
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    ensureBuiltinSeeded()
+    return false
+  }
+
   ensureBuiltinSeeded()
 
   const origin = getApiOrigin()

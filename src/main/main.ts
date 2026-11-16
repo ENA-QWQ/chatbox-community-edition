@@ -48,6 +48,8 @@ import type { FileEditRequest } from '../shared/file-edits'
 import { KNOWN_LOCAL_PARSER_ERROR_CODES } from '../shared/file-parse-errors'
 import { startChatboxAPIOriginProbing } from '../shared/request/chatboxai_pool'
 import { VIEW_IMAGE_MAX_READ_BYTES } from '../shared/tools/view-image'
+// [Chatbox CE] telemetry master switch
+import { CE_DISABLE_TELEMETRY } from '../shared/ce-edition'
 import { flushSentry, sentry } from './adapters/sentry'
 import { registerAgentPersonaHandlers } from './agent-persona/ipc-handlers'
 import * as analystic from './analystic-node'
@@ -967,6 +969,10 @@ ipcMain.handle('relaunch', () => {
 })
 
 ipcMain.handle('analysticTrackingEvent', (event, dataJson) => {
+  // [Chatbox CE] GA Measurement Protocol bridge is disabled in the Community Edition.
+  if (CE_DISABLE_TELEMETRY) {
+    return
+  }
   const data = JSON.parse(dataJson)
   analystic.event(data.name, data.params).catch((e) => {
     log.error('analystic_tracking_event', e)

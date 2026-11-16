@@ -535,7 +535,8 @@ test.each([
   expect(screen.queryByText(/Switch to a model under/)).toBeNull()
 })
 
-test('shows custom provider name, network advice and login guidance after a network failure', () => {
+// [Chatbox CE] the "Sign in to Chatbox AI" login guidance banner is removed
+test('shows custom provider name and network advice without login guidance after a network failure', () => {
   settingsStore.setState({
     licenseKey: undefined,
     language: 'en',
@@ -556,7 +557,7 @@ test('shows custom provider name, network advice and login guidance after a netw
   const guidance = screen.getByRole('alert').textContent || ''
   expect(guidance).toContain('connection with api.example.test')
   expect(guidance).toContain('your configured My API')
-  expect(guidance).toContain('Sign in to Chatbox AI')
+  expect(guidance).not.toContain('Sign in to Chatbox AI')
 })
 
 test('shows available Chatbox AI points after a custom provider network failure', async () => {

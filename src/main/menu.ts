@@ -218,9 +218,10 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
+          // [Chatbox CE] official website link replaced with the community fork
           label: 'Learn More',
           click() {
-            shell.openExternal('https://chatboxai.app')
+            shell.openExternal('https://github.com/chatboxai/chatbox')
           },
         },
         {
@@ -311,7 +312,7 @@ export default class MenuBuilder {
           {
             label: 'Learn More',
             click() {
-              shell.openExternal('https://chatboxai.app')
+              shell.openExternal('https://github.com/chatboxai/chatbox') // [Chatbox CE] official website replaced
             },
           },
           {

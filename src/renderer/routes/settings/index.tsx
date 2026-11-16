@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
+// [Chatbox CE] settings landing page no longer redirects to the Chatbox AI login
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { useEffect } from 'react'
 import { z } from 'zod'
 import { useIsSmallScreen } from '@/hooks/useScreenChange'
@@ -18,7 +20,11 @@ export function RouteComponent() {
   const navigate = useNavigate()
   useEffect(() => {
     if (!isSmallScreen) {
-      navigate({ to: '/settings/chatbox-ai', replace: true })
+      // [Chatbox CE] land on Model Provider instead of the Chatbox AI account page
+      navigate({
+        to: CE_DISABLE_REMOTE_CONTENT ? '/settings/provider' : '/settings/chatbox-ai',
+        replace: true,
+      })
     }
   }, [isSmallScreen, navigate])
 

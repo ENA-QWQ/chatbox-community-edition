@@ -14,6 +14,8 @@ import clsx from 'clsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Toaster } from 'sonner'
+// [Chatbox CE] Chatbox AI account card removal
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { ICON_SIZE, ICON_STROKE_WIDTH, IconButton } from '@/components/common/IconButton'
 import { ScalableIcon } from '@/components/common/ScalableIcon'
 import Page from '@/components/layout/Page'
@@ -272,32 +274,35 @@ export function SettingsRoot() {
             </div>
           ) : (
             <>
-              <Link to="/settings/chatbox-ai" className="block no-underline">
-                <Flex
-                  align="center"
-                  gap="sm"
-                  className="rounded-xl bg-chatbox-background-raised px-3.5 py-3 text-chatbox-tint-primary"
-                >
+              {/* [Chatbox CE] Chatbox AI account card removed */}
+              {CE_DISABLE_REMOTE_CONTENT ? null : (
+                <Link to="/settings/chatbox-ai" className="block no-underline">
                   <Flex
                     align="center"
-                    justify="center"
-                    className="size-10 shrink-0 rounded-full bg-chatbox-background-brand-secondary text-chatbox-tint-brand"
+                    gap="sm"
+                    className="rounded-xl bg-chatbox-background-raised px-3.5 py-3 text-chatbox-tint-primary"
                   >
-                    <ScalableIcon icon={IconSparkles} size={22} strokeWidth={ICON_STROKE_WIDTH} />
+                    <Flex
+                      align="center"
+                      justify="center"
+                      className="size-10 shrink-0 rounded-full bg-chatbox-background-brand-secondary text-chatbox-tint-brand"
+                    >
+                      <ScalableIcon icon={IconSparkles} size={22} strokeWidth={ICON_STROKE_WIDTH} />
+                    </Flex>
+                    <Flex direction="column" flex={1} miw={0}>
+                      <Text fz={16} fw={600} lh="22px">
+                        Chatbox AI
+                      </Text>
+                      <Text fz={13} lh="18px" c={isChatboxAIActivated ? 'chatbox-success' : 'chatbox-tertiary'} truncate>
+                        {isChatboxAIActivated
+                          ? [t('Activated'), licensePlanName].filter(Boolean).join(' · ')
+                          : t('Not activated')}
+                      </Text>
+                    </Flex>
+                    <ScalableIcon icon={IconChevronRight} size={20} className="text-chatbox-tint-tertiary" />
                   </Flex>
-                  <Flex direction="column" flex={1} miw={0}>
-                    <Text fz={16} fw={600} lh="22px">
-                      Chatbox AI
-                    </Text>
-                    <Text fz={13} lh="18px" c={isChatboxAIActivated ? 'chatbox-success' : 'chatbox-tertiary'} truncate>
-                      {isChatboxAIActivated
-                        ? [t('Activated'), licensePlanName].filter(Boolean).join(' · ')
-                        : t('Not activated')}
-                    </Text>
-                  </Flex>
-                  <ScalableIcon icon={IconChevronRight} size={20} className="text-chatbox-tint-tertiary" />
-                </Flex>
-              </Link>
+                </Link>
+              )}
               {groups
                 .filter((group) => group.items.some((item) => item.key !== 'chatbox-ai'))
                 .map((group) => (
@@ -390,7 +395,8 @@ export function SettingsRoot() {
                       <Text span fz={14} lh="20px" flex={1} lineClamp={1} className="!text-inherit !font-[inherit]">
                         {itemLabel(item)}
                       </Text>
-                      {item.key === 'chatbox-ai' && isChatboxAIActivated && (
+                      {/* [Chatbox CE] license "Activated" badge removed */}
+                      {item.key === 'chatbox-ai' && !CE_DISABLE_REMOTE_CONTENT && isChatboxAIActivated && (
                         <Text span fz={11} c="chatbox-success">
                           {t('Activated')}
                         </Text>

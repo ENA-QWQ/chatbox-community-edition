@@ -7,6 +7,8 @@ import {
 import { ofetch } from 'ofetch'
 import { z } from 'zod'
 import { getLogger } from '@/lib/utils'
+// [Chatbox CE] remote content master switch
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { type ClaimedAgentModeReward, ClaimFreeAgentModeRewardResponseSchema } from '@/packages/agent-mode-reward'
 import { VibedropEmailRequiredError } from '@/packages/vibedrop-errors'
 import platform from '@/platform'
@@ -178,6 +180,10 @@ export async function checkNeedUpdate(version: string, os: string, config: Confi
 // }
 
 export async function listCopilotTags(lang: string) {
+  // [Chatbox CE] remote copilot catalog is disabled; serve an empty tag list.
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    return [] as string[]
+  }
   type Response = {
     data: string[]
   }
@@ -197,6 +203,11 @@ export async function listCopilotsByCursor(
     search?: string
   }
 ) {
+  // [Chatbox CE] remote copilot catalog is disabled; serve an empty page so the
+  // UI degrades to an empty list instead of calling the official API.
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    return { data: [] as CopilotDetail[], next_cursor: null }
+  }
   type Response = {
     data: CopilotDetail[]
     next_cursor: string | null
@@ -213,6 +224,10 @@ export async function recordCopilotUsage(params: {
   id: string
   action: 'create_session' | 'create_thread' | 'create_message' | 'use_copilot'
 }) {
+  // [Chatbox CE] copilot usage reporting is disabled (no device_id leaves the app).
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    return
+  }
   await ofetch(`${getAPIOrigin()}/api/system_copilots/record_usage`, {
     method: 'POST',
     body: {
@@ -223,6 +238,10 @@ export async function recordCopilotUsage(params: {
 }
 
 export async function recordCopilotShare(detail: CopilotDetail) {
+  // [Chatbox CE] copilot share reporting is disabled.
+  if (CE_DISABLE_REMOTE_CONTENT) {
+    return
+  }
   await ofetch(`${getAPIOrigin()}/api/copilots/share-record`, {
     method: 'POST',
     body: {

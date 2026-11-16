@@ -1,4 +1,6 @@
 import { type ChatboxAILicenseDetail, ModelProviderEnum, type ProviderModelInfo } from '@shared/types'
+// [Chatbox CE] remote model catalog is disabled
+import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
 import { type QueryFilters, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { type ChatboxAIModelList, getChatboxAIModelList, getModelManifest } from '@/packages/remote'
@@ -71,6 +73,17 @@ const useChatboxAIModels = () => {
   const { data, ...others } = useQuery({
     queryKey: [CHATBOX_AI_MODELS_QUERY_KEY, language, licenseKey],
     queryFn: async () => {
+      // [Chatbox CE] never fetch the Chatbox AI model catalog; all consumers
+      // (Model Provider page, ModelSelector, image groups) degrade to empty.
+      if (CE_DISABLE_REMOTE_CONTENT) {
+        return {
+          models: [] as ProviderModelInfo[],
+          // never[] so the union with the manifest branch collapses to the
+          // upstream element type at every call site (incl. .modelName access).
+          imageModels: [] as never[],
+          modelList: null,
+        }
+      }
       const [manifest, modelList] = await Promise.all([
         getModelManifest({
           aiProvider: ModelProviderEnum.ChatboxAI,

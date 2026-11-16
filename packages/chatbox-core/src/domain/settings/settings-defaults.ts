@@ -8,8 +8,11 @@ export interface SettingsHostDefaults {
   isDesktopLike: boolean
 }
 
-export function getDefaultDocumentParser(host: SettingsHostDefaults): DocumentParserConfig {
-  return host.isDesktopLike ? { type: 'local' } : { type: 'chatbox-ai' }
+export function getDefaultDocumentParser(_host: SettingsHostDefaults): DocumentParserConfig {
+  // [Chatbox CE] always use the local document parser; the Chatbox AI cloud
+  // parsing endpoint is not available in the Community Edition. The host
+  // argument is kept for API compatibility with upstream call sites.
+  return { type: 'local' }
 }
 
 /**
@@ -39,7 +42,9 @@ export function createDefaultSettings(): Settings {
     fontSize: 14,
     spellCheck: true,
     defaultPrompt: DEFAULT_SYSTEM_PROMPT,
-    allowReportingAndTracking: true,
+    // [Chatbox CE] telemetry is removed entirely; the consent flag defaults to
+    // false as defense-in-depth (all telemetry exits are hard-gated anyway).
+    allowReportingAndTracking: false,
     hasExpiredLicense: false,
     chatboxAIDesktopPromptDismissed: false,
     enableMarkdownRendering: true,
