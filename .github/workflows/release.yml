@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'ce-v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify sanitization before release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Run sanitizer (verify-only, must be idempotent)
+        run: |
+          ./build-scripts/sanitize.sh
+          if ! git diff --quiet; then
+            echo "::error::Sanitizer modified tracked files on a release tag - gates were lost"
+            git diff --stat
+            exit 1
+          fi
+
+      - name: Guard against upstream publish config
+        run: |
+          if ! grep -q '^publish: null' electron-builder.yml; then
+            echo "::error::electron-builder publish target is not null"
+            exit 1
+          fi
+
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+  build:
+    name: Release build (${{ matrix.platform }})
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact: chatbox-ce-linux
+          - os: macos-latest
+            platform: mac
+            artifact: chatbox-ce-macos
+          - os: windows-latest
+            platform: win
+            artifact: chatbox-ce-windows
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache electron-builder downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/electron
+            ~/.cache/electron-builder
+          key: ${{ matrix.platform }}-electron-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ matrix.platform }}-electron-
+
+      - name: Build and package
+        shell: bash
+        env:
+          UPDATE_CHANNEL: alpha
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          pnpm exec tsx ./.erb/scripts/clean.js
+          pnpm run build
+          case "${{ matrix.platform }}" in
+            linux) pnpm exec electron-builder build --publish never --linux ;;
+            mac)   pnpm exec electron-builder build --publish never --mac ;;
+            win)   pnpm exec electron-builder build --publish never --win ;;
+          esac
+
+      - name: Upload release artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release/build/*.AppImage
+            release/build/*.deb
+            release/build/*.dmg
+            release/build/*.zip
+            release/build/*.exe
+            release/build/*.blockmap
+            release/build/*.yml

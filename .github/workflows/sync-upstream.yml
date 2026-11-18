@@ -1,0 +1,200 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Merge upstream and tag pre-release
+    runs-on: ubuntu-latest
+    outputs:
+      updated: ${{ steps.sync.outputs.updated }}
+      ce_tag: ${{ steps.tag.outputs.ce_tag }}
+    steps:
+      - name: Checkout community edition branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/community-edition
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: git fetch origin main --tags
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Detect and merge upstream
+        id: sync
+        run: |
+          set -euo pipefail
+          local_base=$(git rev-parse HEAD)
+          upstream_head=$(git rev-parse origin/main)
+          new=$(git rev-list --count "$local_base..$upstream_head" || echo 0)
+          echo "local=$local_base upstream=$upstream_head ahead_by=$new"
+          if [ "$new" -eq 0 ]; then
+            echo "no upstream commits to merge"
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "chatbox-ce[bot]"
+          git config user.email "chatbox-ce@users.noreply.github.com"
+          if ! git merge --no-edit origin/main 2>merge-conflict.log; then
+            echo "::error::Upstream merge conflicted - manual resolution required"
+            cat merge-conflict.log
+            git merge --abort
+            echo "updated=failed" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+
+      - name: Apply Community Edition sanitizer
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          ./build-scripts/sanitize.sh
+          if git diff --quiet; then
+            echo "sanitizer idempotent"
+          else
+            echo "::error::Sanitizer had to re-apply gates after upstream merge"
+            git diff --stat
+            git add -A
+            git -c user.name="chatbox-ce[bot]" -c user.email="chatbox-ce@users.noreply.github.com" \
+              commit -m "chore(ce): re-apply sanitizer after upstream merge"
+          fi
+
+      - name: Guard against upstream publish config
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          if ! grep -q '^publish: null' electron-builder.yml; then
+            echo "::error::electron-builder publish target is not null"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          if ! pnpm install --frozen-lockfile; then
+            echo "lockfile drifted with upstream package.json; regenerating"
+            pnpm install --no-frozen-lockfile
+            git add pnpm-lock.yaml
+            git -c user.name="chatbox-ce[bot]" -c user.email="chatbox-ce@users.noreply.github.com" \
+              commit -m "chore(ce): regenerate lockfile after upstream merge"
+          fi
+
+      - name: Type check
+        if: steps.sync.outputs.updated == 'true'
+        run: pnpm exec tsc --noEmit
+
+      - name: Tag pre-release
+        id: tag
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          upstream_version=$(git describe --tags --abbrev=0 origin/main 2>/dev/null | sed 's/^v//' || echo unknown)
+          ce_tag="ce-${upstream_version}-$(date +%Y-%m-%d)"
+          git tag -f "$ce_tag"
+          git push origin "feature/community-edition" "refs/tags/$ce_tag" --force
+          echo "ce_tag=$ce_tag" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Pre-release build (${{ matrix.platform }})
+    needs: sync
+    if: needs.sync.outputs.updated == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact: chatbox-ce-linux-prerelease
+          - os: macos-latest
+            platform: mac
+            artifact: chatbox-ce-macos-prerelease
+          - os: windows-latest
+            platform: win
+            artifact: chatbox-ce-windows-prerelease
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout pre-release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.sync.outputs.ce_tag }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Apply sanitizer
+        shell: bash
+        run: ./build-scripts/sanitize.sh
+
+      - name: Guard against upstream publish config
+        run: |
+          if ! grep -q '^publish: null' electron-builder.yml; then
+            echo "::error::electron-builder publish target is not null"
+            exit 1
+          fi
+
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache electron-builder downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/electron
+            ~/.cache/electron-builder
+          key: ${{ matrix.platform }}-electron-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ matrix.platform }}-electron-
+
+      - name: Build and package
+        shell: bash
+        env:
+          UPDATE_CHANNEL: alpha
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          pnpm exec tsx ./.erb/scripts/clean.js
+          pnpm run build
+          case "${{ matrix.platform }}" in
+            linux) pnpm exec electron-builder build --publish never --linux ;;
+            mac)   pnpm exec electron-builder build --publish never --mac ;;
+            win)   pnpm exec electron-builder build --publish never --win ;;
+          esac
+
+      - name: Upload to pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.sync.outputs.ce_tag }}
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            release/build/*.AppImage
+            release/build/*.deb
+            release/build/*.dmg
+            release/build/*.zip
+            release/build/*.exe
+            release/build/*.blockmap
+            release/build/*.yml
