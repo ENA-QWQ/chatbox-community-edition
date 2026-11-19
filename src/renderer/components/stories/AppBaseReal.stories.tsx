@@ -48,7 +48,6 @@ import { ModelList } from '@/components/ModelList'
 import MCPMenu from '@/components/mcp/MCPMenu'
 import MCPStatus from '@/components/mcp/MCPStatus'
 import { Keys, ShortcutConfig } from '@/components/Shortcut'
-import SponsorChip from '@/components/SponsorChip'
 import StyledMenu from '@/components/StyledMenu'
 import {
   Command,
@@ -177,7 +176,6 @@ export const VisualIdentityStates: StoryObj = {
       'src/renderer/components/icons/ProviderIcon',
       'src/renderer/components/icons/ProviderImageIcon',
       'src/renderer/components/icons/Robot',
-      'src/renderer/components/SponsorChip',
     ],
   },
   render: () => <VisualIdentityFixture />,
@@ -364,10 +362,6 @@ function VisualIdentityFixture() {
       </Paper>
       <Paper withBorder radius="md" p="md">
         <Disclaimer />
-        <Text size="xs" c="dimmed" mt="sm">
-          SponsorChip is currently a real no-op because sponsor ad fetching is disabled in the production component.
-        </Text>
-        <SponsorChip />
       </Paper>
     </Stack>
   )

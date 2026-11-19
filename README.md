@@ -1,437 +1,137 @@
-<p align="right">
-  <a href="README.md">English</a> |
-  <a href="./doc/README-CN.md">简体中文</a>
-</p>
-
-<h1 align="center">
-<img src='./doc/statics/icon.png' width='30'>
-<span>
-    Chatbox
-    <span style="font-size:8px; font-weight: normal;">(Community Edition)</span>
-</span>
-</h1>
-<p align="center">
-    <em>Your Ultimate AI Copilot on the Desktop. <br />Chatbox is a desktop client for ChatGPT, Claude and other LLMs, available on Windows, Mac, Linux</em>
-</p>
-
-> [!IMPORTANT]
-> **Chatbox Community Edition** is a privacy-preserving fork of
-> [chatboxai/chatbox](https://github.com/chatboxai/chatbox) (GPLv3). It removes
-> every SaaS dependency: no telemetry (Sentry / Google Analytics / Plausible),
-> no account or license servers, no cloud sync, no paid guides and no
-> server-driven "remote dialog" or client notifications. Your conversations,
-> settings, knowledge bases and RAG indexes stay **on your device**.
->
-> Bring your own model — OpenAI, Anthropic, Gemini, DeepSeek, Ollama, LM Studio
-> or any OpenAI-compatible endpoint.
->
-> See [Community Edition](#community-edition) for the full list of changes and
-> the build/release instructions.
-
-<p align="center">
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
-</a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="Windows" src="https://img.shields.io/badge/-Windows-blue?style=flat-square&logo=windows&logoColor=white" />
-</a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="Linux" src="https://img.shields.io/badge/-Linux-yellow?style=flat-square&logo=linux&logoColor=white" />
-</a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="Downloads" src="https://img.shields.io/github/downloads/chatboxai/chatbox/total.svg?style=flat" />
-</a>
-<a href="#features">
-<img alt="Privacy" src="https://img.shields.io/badge/-Local%20First-green?style=flat-square&logo=shield&logoColor=white" />
-</a>
-</p>
-
-<p align="center">
-<a href="https://www.producthunt.com/posts/chatbox?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-chatbox" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=429547&theme=light" alt="Chatbox - Better&#0032;UI&#0032;&#0038;&#0032;Desktop&#0032;App&#0032;for&#0032;ChatGPT&#0044;&#0032;Claude&#0032;and&#0032;other&#0032;LLMs&#0046; | Product Hunt" style="width: 150px; height: 30px;" width="100" height="40" /></a>
-<a href="https://trendshift.io/repositories/14871" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14871" alt="chatboxai%2Fchatbox | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
-
-<p align="center">
-  <a href="./doc/statics/snapshot_light.png">
-    <img src="./doc/statics/snapshot_light.png" width="400"/>
-  </a>
-  <a href="./doc/statics/snapshot_dark.png">
-    <img src="./doc/statics/snapshot_dark.png" width="400"/>
-  </a>
-</p>
-
----
-
-This is the repository for the Chatbox Community Edition, open-sourced under the GPLv3 license.
-
-[Chatbox is going open-source Again!](https://github.com/chatboxai/chatbox/issues/2266)
-
-We regularly sync code from the pro repo to this repo, and vice versa.
-
-## Download
-
-### Desktop
-
-<table style="width: 100%">
-  <tr>
-    <td width="25%" align="center">
-      <b>Windows</b>
-    </td>
-    <td width="25%" align="center" colspan="2">
-      <b>MacOS</b>
-    </td>
-    <td width="25%" align="center">
-      <b>Linux</b>
-    </td>
-  </tr>
-  <tr style="text-align: center">
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-windows'>
-        <img src='./doc/statics/windows.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Setup.exe</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-intel'>
-        <img src='./doc/statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Intel</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-aarch'>
-        <img src='./doc/statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b style="white-space: nowrap;">Apple Silicon</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-linux'>
-        <img src='./doc/statics/linux.png' style="height:24px; width: 24px" />
-        <br />
-        <b>AppImage</b>
-      </a>
-    </td>
-  </tr>
-</table>
-
-### iOS/Android
-
-<a href='https://apps.apple.com/app/chatbox-ai/id6471368056' style='margin-right: 4px'>
-<img src='./doc/statics/app_store.webp' style="height:38px;" />
-</a>
-<a href='https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox' style='margin-right: 4px'>
-<img src='./doc/statics/google_play.png' style="height:38px;" />
-</a>
-<a href='https://chatboxai.app/install?download=android_apk' style='margin-right: 4px; display: inline-flex; justify-content: center'>
-<img src='./doc/statics/android.png' style="height:28px; display: inline-block" />
-.APK
-</a>
-
-For more information: [chatboxai.app](https://chatboxai.app/)
-
-## Quick Start
-
-### For End Users
-1. Download the appropriate installer for your platform from the [releases page](https://github.com/chatboxai/chatbox/releases)
-2. Install and launch Chatbox
-3. Configure your AI provider (OpenAI, Claude, etc.) in settings
-4. Start chatting!
-
-### System Requirements
-
-| Platform | Minimum Version | Architecture |
-|----------|----------------|--------------|
-| Windows | Windows 10 | x64 |
-| macOS | macOS 11 (Big Sur) | Intel/Apple Silicon |
-| Linux | Ubuntu 20.04+ / AppImage supported distros | x64 |
-
-<!-- <table>
-<tr>
-<td>
-<img src="./dec/../doc/demo_mobile_1.png" alt="App Screenshot" style="box-shadow: 2px 2px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; border-radius: 8px; height: 300px" />
-</td>
-<td>
-<img src="./dec/../doc/demo_mobile_2.png" alt="App Screenshot" style="box-shadow: 2px 2px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; border-radius: 8px; height: 300px" />
-</td>
-</tr>
-</table> -->
-
-## Features
-
-### 🤖 AI Model Support
--   **Support for Multiple LLM Providers**  
-    :gear: Seamlessly integrate with a variety of cutting-edge language models:
-    -   OpenAI (ChatGPT)
-    -   Azure OpenAI
-    -   Claude
-    -   Google Gemini Pro
-    -   Ollama (enable access to local models like llama2, Mistral, Mixtral, codellama, vicuna, yi, and solar)
-    -   ChatGLM-6B
-
--   **Image Generation with Dall-E-3**  
-    :art: Create the images of your imagination with Dall-E-3.
-
--   **Enhanced Prompting**  
-    :speech_balloon: Advanced prompting features to refine and focus your queries for better responses.
-
-### 🖥️ User Experience
--   **Local Data Storage**  
-    :floppy_disk: Your data remains on your device, ensuring it never gets lost and maintains your privacy.
-
--   **No-Deployment Installation Packages**  
-    :package: Get started quickly with downloadable installation packages. No complex setup necessary!
-
--   **Ergonomic UI & Dark Theme**  
-    :new_moon: A user-friendly interface with a night mode option for reduced eye strain during extended use.
-
--   **Keyboard Shortcuts**  
-    :keyboard: Stay productive with shortcuts that speed up your workflow.
-
--   **Streaming Reply**  
-    :arrow_forward: Provide rapid responses to your interactions with immediate, progressive replies.
-
-### 📄 Content & Formatting
--   **Markdown, Latex & Code Highlighting**  
-    :scroll: Generate messages with the full power of Markdown and Latex formatting, coupled with syntax highlighting for various programming languages, enhancing readability and presentation.
-
--   **Prompt Library & Message Quoting**  
-    :books: Save and organize prompts for reuse, and quote messages for context in discussions.
-
-### 👥 Collaboration & Sharing
--   **Team Collaboration**  
-    :busts_in_silhouette: Collaborate with ease and share OpenAI API resources among your team. [Learn More](./team-sharing/README.md)
-
-### 🌐 Platform Availability
--   **Cross-Platform Desktop**  
-    :computer: Chatbox is ready for Windows, Mac, and Linux users.
-
--   **Web Version**  
-    :globe_with_meridians: Use the web application on any device with a browser, anywhere.
-
--   **Mobile Apps**  
-    :phone: Native iOS and Android applications for on-the-go access.
-
-### 🌍 Localization
--   **Multilingual Support**  
-    :earth_americas: Catering to a global audience by offering support in multiple languages:
-    -   English
-    -   简体中文 (Simplified Chinese)
-    -   繁體中文 (Traditional Chinese)
-    -   日本語 (Japanese)
-    -   한국어 (Korean)
-    -   Français (French)
-    -   Deutsch (German)
-    -   Русский (Russian)
-    -   Español (Spanish)
-
-### ✨ More Features
--   **And More...**  
-    :sparkles: Constantly enhancing the experience with new features!
-
-## FAQ
-
--   [Frequently Asked Questions](./doc/FAQ.md)
-
-## How to Contribute
-
-We welcome contributions from the community! Here's how you can help make Chatbox better:
-
-### 🐛 Reporting Issues
-- Use [GitHub Issues](https://github.com/chatboxai/chatbox/issues) to report bugs or request features
-- Before creating a new issue, please search existing issues to avoid duplicates
-- Provide detailed information including steps to reproduce, expected behavior, and screenshots if applicable
-
-### 🔧 Pull Requests
-1. Fork the repository and create your branch from `main`
-2. Make your changes and ensure the code follows our coding standards
-3. Test your changes thoroughly
-4. Update documentation if needed
-5. Submit a pull request with a clear description of the changes
-
-### 🌍 Translations
-Help make Chatbox accessible to more people by contributing translations:
-- Translation files are located in the `src/locales` directory
-- Follow the existing translation format
-- Submit a PR with your translation improvements
-
-### 📖 Documentation
-- Improve README, API documentation, or user guides
-- Fix typos or clarify unclear instructions
-- Add examples and tutorials
-
-### 🌟 Other Ways to Contribute
-- Star the repository to show your support
-- Share Chatbox with others
-- Answer questions in [GitHub Discussions](https://github.com/chatboxai/chatbox/discussions)
-- Provide feedback and suggestions
-
-**Thank you for contributing! 🙏**
-
-## Development
-
-### Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v20.x – v22.x) - [Download here](https://nodejs.org/)
-- **pnpm** (v10.x or later) - Install via `corepack enable && corepack prepare pnpm@latest --activate`
-- **Git** - [Download here](https://git-scm.com/)
-
-### Quick Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/chatboxai/chatbox.git
-   cd chatbox
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
-
-3. **Start development server**
-   ```bash
-   pnpm run dev
-   ```
-   The application will start in development mode with hot-reload enabled.
-
-### Build Commands
-
-| Command | Description |
-|---------|-------------|
-| `pnpm run dev` | Start development server with hot-reload |
-| `pnpm run package` | Build and package for current platform |
-| `pnpm run package:all` | Build and package for all platforms |
-| `pnpm run build` | Build for production without packaging |
-| `pnpm run lint` | Run Biome to check code quality |
-| `pnpm run test` | Run Vitest test suite |
-
-### Project Structure
-
-```
-chatbox/
-├── src/
-│   ├── main/               # Electron main process
-│   ├── renderer/           # React renderer (UI)
-│   ├── preload/            # Electron preload scripts
-│   └── shared/             # Shared utilities
-├── doc/                    # Documentation and assets
-├── resources/              # App resources and icons
-├── team-sharing/           # Team collaboration features
-└── package.json            # Project configuration
-```
-
-### Development Tips
-
-- Use `pnpm run lint` before committing to ensure code quality
-- Follow the existing code style and patterns
-- Test your changes on both light and dark themes
-- Ensure cross-platform compatibility when making UI changes
-
-### Troubleshooting
-
-**Issue**: `pnpm install` fails
-- **Solution**: Ensure you're using pnpm (not npm or yarn) and Node.js version is within the required range. Run `corepack enable` if pnpm is not found.
-
-**Issue**: Build fails on Windows
-- **Solution**: Run `pnpm config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"` if using Git Bash
-
-**Issue**: Changes not reflecting in development
-- **Solution**: Stop the dev server, delete `node_modules/.vite`, and restart
-
-## Star History
-
-[![Star History Chart](https://star-history.dera.page/svg?repos=chatboxai/chatbox&type=Date)](https://star-history.dera.page/#chatboxai/chatbox&Date)
-
-## Contact
-
-[Email](mailto:hi@chatboxai.com)
-
-## Community Edition
-
-This fork removes the commercial/SaaS layer of Chatbox while keeping the
-desktop client fully functional with your own model providers.
-
-### What was removed
-
-| Area | Upstream behaviour | Community Edition |
-| --- | --- | --- |
-| Telemetry | Sentry error reporting, Google Analytics (GA4 Measurement Protocol, `device_id`), Plausible page views | **All removed.** No SDK init, no outbound events, no consent switch |
-| Accounts | Chatbox AI sign-in, license keys, plan/quota tracking, "Activated" badges | **Removed.** No account UI, no token storage, no license server calls |
-| Subscriptions | Upgrade prompts, free-plan claim funnels, paid-plan links, expansion packs | **Removed** from every surface (settings, chat errors, knowledge base, welcome card, onboarding guide) |
-| Cloud services | Built-in Chatbox AI search, Chatbox AI cloud document parsing, built-in (subscription) MCP servers, remote model catalog, remote config, remote background skill sync | **Removed / replaced by local equivalents** (local parsing, your own MCP servers, local model registry) |
-| Server-driven UI | Marketing "remote dialog", client notifications, onboarding guide hosted as a billed cloud chat | **Removed.** The guide never runs and never calls the network |
-| Onboarding | Preset demo conversations seeded on first launch | **Removed.** You start with an empty, local session list |
-| Updater | Official auto-upgrade feed (`chatboxai.app/api/auto_upgrade`) | **Disabled.** No request to upstream infrastructure |
-| Reverse-engineering guard | Dormant anti-piracy hostname check | **Removed** |
-
-### What was kept
-
-- The full local AI client: multi-provider chat, image generation with your own
-  endpoints, MCP support, skills, knowledge base and session RAG.
-- **Local-first storage.** Conversations live in IndexedDB (desktop/web) or
-  SQLite (mobile); knowledge base and RAG indexes are local SQLite databases;
-  settings are kept in `config.json` in the app data directory.
-- GitHub-based skill marketplace, self-hosted "team sharing" proxy setups and
-  every provider that does not require a Chatbox account.
-
-### Verification tooling
-
-The fork ships its own verification harness so the guarantees above are
-testable, not just documented:
+# Chatbox Community Edition
+
+A privacy-preserving, de-commercialized fork of
+[chatboxai/chatbox](https://github.com/chatboxai/chatbox) — a desktop AI client
+for Windows, macOS and Linux that works with your own model providers.
+
+Distributed under the GNU GPL v3, same as upstream.
+
+## Why this fork exists
+
+Upstream Chatbox is a capable local-first client, but it ships with a commercial
+layer: telemetry, an account/license system, subscription prompts, cloud
+add-on services and server-driven marketing UI. The Community Edition strips
+all of that out while keeping the client fully functional with your own API
+keys.
+
+**What is guaranteed removed:**
+
+| Area | Removed |
+| --- | --- |
+| Telemetry | Sentry, Google Analytics (Measurement Protocol with device id), Plausible |
+| Accounts | Chatbox AI sign-in, license keys, plan/quota tracking, token storage |
+| Monetization | Upgrade prompts, free-plan claim funnels, expansion packs, sponsor components, funding links |
+| Cloud add-ons | Built-in Chatbox AI search, cloud document parsing, subscription MCP servers, remote model catalog, remote config, background skill sync |
+| Server-driven UI | Marketing dialogs, client notifications, cloud-hosted onboarding guide |
+| Onboarding | Preset demo conversations (you start with an empty, local session list) |
+| Distribution | Official auto-updater feed, S3/R2 publish target, anti-piracy hostname guard |
+
+**What still works:**
+
+- Multi-provider chat: OpenAI, Anthropic, Gemini, DeepSeek, Groq, OpenRouter,
+  Ollama, LM Studio and any OpenAI-compatible endpoint
+- Image generation through your own providers
+- MCP servers (bring your own), skills marketplace (GitHub-based), agent mode
+- Knowledge base and session RAG with your own embedding/rerank models
+- Web search via Bing, Tavily, Bocha, Querit or a self-hosted SearXNG
+- Local-first storage: conversations in IndexedDB/SQLite, knowledge bases in
+  local SQLite files, settings in a local config file — nothing is synced
+  anywhere
+
+## Getting started
+
+### Install
+
+Download installers from the GitHub Releases page of this fork, or build from
+source (below). Builds are unsigned; on Windows you will see a SmartScreen
+warning — choose "More info" → "Run anyway".
+
+### Configure a model
+
+1. Open **Settings → Model Provider**
+2. Add an API key for any provider (or point at a local Ollama / LM Studio)
+3. Start chatting
+
+There is no account step and nothing to sign into.
+
+## Verification
+
+The privacy claims above are enforced and testable, not just documented:
 
 ```bash
-# 1. Verify/re-apply every Community Edition gate (idempotent, 52 checks)
-./build-scripts/sanitize.sh          # macOS / Linux
-pwsh ./build-scripts/sanitize.ps1    # Windows
+# Verify/re-apply all 52 Community Edition gates (idempotent)
+./build-scripts/sanitize.sh           # macOS / Linux
+pwsh ./build-scripts/sanitize.ps1     # Windows
 
-# 2. Prove the running app performs no telemetry or upstream traffic
-pnpm start:cdp                                  # dev build with a CDP port
-node build-scripts/cdp-network-probe.mjs 45 9333 # expects: external=0 denied=0
-node build-scripts/cdp-ui-assert.mjs 9333         # expects: no SaaS UI entries
+# Prove a running build performs zero upstream/telemetry traffic
+pnpm start:cdp                                   # dev build with CDP port 9333
+node build-scripts/cdp-network-probe.mjs 45 9333 # expect external=0 denied=0
+node build-scripts/cdp-ui-assert.mjs 9333        # expect no SaaS UI entries
 ```
 
-`sanitize.sh` is the same script the CI pipeline runs before every build, so a
-merge that re-introduces an upstream SaaS call fails the build instead of
-silently shipping.
+All sanitization is implemented as small gates behind five switches in
+`src/shared/ce-edition.ts`, marked with `[Chatbox CE]` in source.
 
-### Building
+## Building from source
 
-Requirements: Node.js >= 22.13 and pnpm >= 10.17.
+Requirements: Node.js >= 22.13, pnpm >= 10.17.
 
 ```bash
 pnpm install
 pnpm dev             # development mode
-pnpm run package     # package for the current platform
-pnpm run package:all # package for Windows, macOS and Linux (run on each OS)
+pnpm run package     # package for the current platform (unsigned)
+pnpm test:unit       # unit tests
 ```
 
-Community Edition builds are **unsigned**. The upstream `publish` block that
-uploads artifacts to the official bucket was removed, and `custom_win_sign.js`
-is a no-op hook.
+Packaging uses electron-builder with the upstream S3 publish target removed and
+a no-op Windows signing hook; artifacts land in `release/build/`.
 
-### Continuous integration
+## Continuous integration
 
-`.github/workflows/build.yml` builds the app on every push to `main`, on pull
-requests and on manual dispatch:
+`.github/workflows/` provides three pipelines:
 
-1. checks out the repository,
-2. runs `build-scripts/sanitize.sh` and fails the job if it had to change
-   anything (the sanitizer must be idempotent),
-3. installs dependencies with a frozen lockfile,
-4. packages the application for the runner's platform,
-5. uploads the installers as workflow artifacts.
+- **build.yml** — on push/PR/manual: sanitizer gate → install → package for the
+  runner platform → upload artifacts (Windows NSIS, macOS dmg, Linux
+  AppImage/deb)
+- **sync-upstream.yml** — daily cron: merges upstream `main`, re-applies the
+  sanitizer, guards the publish config, type-checks, then tags and builds a
+  pre-release (merge conflicts or lost gates fail loudly for manual handling)
+- **release.yml** — on `ce-v*` tags: verify-only sanitizer gate + type check,
+  then a full three-platform build published as a stable GitHub Release
 
-macOS `.dmg` (arm64 + x64), Windows NSIS installers (x64 + arm64) and Linux
-AppImage/`.deb` packages (x64 + arm64) are produced.
+## Keeping up with upstream
+
+```bash
+git fetch origin
+git checkout main && git merge --ff-only origin/main
+git checkout feature/community-edition && git merge main
+./build-scripts/sanitize.sh     # re-verify gates; fix any FAIL by re-applying
+pnpm exec tsc --noEmit && pnpm test:unit
+```
+
+The sanitizer is the safety net: if an upstream merge overwrites a gate, the
+script (and CI) will catch it.
+
+## Repository layout
+
+```
+src/
+  main/       Electron main process
+  preload/    preload bridge
+  renderer/   React UI (routes, components, stores)
+  shared/     shared logic, types, providers, CE switches
+packages/
+  chatbox-core/   framework-agnostic domain layer
+  chatbox-react/  shared React hooks/stores
+  chatbox-i18n/   translations
+build-scripts/    sanitizer + CDP verification probes
+.github/workflows build, sync, release pipelines
+```
 
 ## License
 
-[LICENSE](./LICENSE)
+[GPL-3.0](./LICENSE)
 
-### Development launch options
-
-Skip onboarding and open a page with `CHATBOX_SKIP_GUIDE=1 CHATBOX_START_PAGE=/settings pnpm dev`, or pass `--skip-guide --start-page=/settings` after `pnpm exec electron-vite dev --`. Web development also accepts `?skipGuide=1`.
+Based on [Chatbox](https://github.com/chatboxai/chatbox) by Bin Huang and
+contributors. This fork carries no affiliation with, endorsement from, or
+commercial relationship to the upstream project or its services.
