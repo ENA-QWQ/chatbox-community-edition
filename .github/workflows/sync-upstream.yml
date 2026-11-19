@@ -187,7 +187,7 @@ jobs:
           esac
 
       - name: Upload to pre-release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.sync.outputs.ce_tag }}
           prerelease: true
