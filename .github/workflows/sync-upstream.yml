@@ -20,14 +20,16 @@ jobs:
       updated: ${{ steps.sync.outputs.updated }}
       ce_tag: ${{ steps.tag.outputs.ce_tag }}
     steps:
-      - name: Checkout community edition branch
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: feature/community-edition
+          ref: main
           fetch-depth: 0
 
       - name: Fetch upstream
-        run: git fetch origin main --tags
+        run: |
+          git remote add upstream https://github.com/chatboxai/chatbox.git || true
+          git fetch upstream main --tags
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -45,7 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           local_base=$(git rev-parse HEAD)
-          upstream_head=$(git rev-parse origin/main)
+          upstream_head=$(git rev-parse upstream/main)
           new=$(git rev-list --count "$local_base..$upstream_head" || echo 0)
           echo "local=$local_base upstream=$upstream_head ahead_by=$new"
           if [ "$new" -eq 0 ]; then
@@ -55,7 +57,7 @@ jobs:
           fi
           git config user.name "chatbox-ce[bot]"
           git config user.email "chatbox-ce@users.noreply.github.com"
-          if ! git merge --no-edit origin/main 2>merge-conflict.log; then
+          if ! git merge --no-edit upstream/main 2>merge-conflict.log; then
             echo "::error::Upstream merge conflicted - manual resolution required"
             cat merge-conflict.log
             git merge --abort
@@ -105,10 +107,10 @@ jobs:
         id: tag
         if: steps.sync.outputs.updated == 'true'
         run: |
-          upstream_version=$(git describe --tags --abbrev=0 origin/main 2>/dev/null | sed 's/^v//' || echo unknown)
+          upstream_version=$(git describe --tags --abbrev=0 upstream/main 2>/dev/null | sed 's/^v//' || echo unknown)
           ce_tag="ce-${upstream_version}-$(date +%Y-%m-%d)"
           git tag -f "$ce_tag"
-          git push origin "feature/community-edition" "refs/tags/$ce_tag" --force
+          git push origin main "refs/tags/$ce_tag" --force
           echo "ce_tag=$ce_tag" >> "$GITHUB_OUTPUT"
 
   build:
