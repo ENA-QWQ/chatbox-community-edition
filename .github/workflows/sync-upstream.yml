@@ -163,7 +163,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Cache electron-builder downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cache/electron
