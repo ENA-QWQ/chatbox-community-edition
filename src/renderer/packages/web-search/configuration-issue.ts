@@ -1,45 +1,36 @@
-// [Chatbox CE] the built-in Chatbox AI search provider is not offered; legacy
-// configurations with provider='build-in' are reported as an unavailable
-// provider instead of a sign-in prompt.
 import { CE_DISABLE_REMOTE_CONTENT } from '@shared/ce-edition'
+import { type NativeWebSearchCredentialSources, resolveNativeWebSearchApiKey } from '@shared/services/native-web-search'
 import type { WebSearchProviderValue } from './constants'
 
-type WebSearchConfiguration = {
-  provider: WebSearchProviderValue
-  tavilyApiKey?: string
-  bochaApiKey?: string
-  queritApiKey?: string
-  searxngBaseUrl?: string
+export type WebSearchReadinessSettings = NativeWebSearchCredentialSources & {
+  extension: { webSearch: { provider: WebSearchProviderValue; searxngBaseUrl?: string } }
+  licenseKey?: string
 }
 
 export type WebSearchConfigurationIssue =
   | 'chatbox-ai-sign-in'
   | 'provider-unavailable'
+  | 'deepseek-api-key'
   | 'tavily-api-key'
   | 'bocha-api-key'
   | 'querit-api-key'
   | 'searxng-instance'
 
 export function getWebSearchConfigurationIssue(
-  configuration: WebSearchConfiguration,
-  licenseKey?: string
+  settings: WebSearchReadinessSettings,
+  provider: WebSearchProviderValue = settings.extension.webSearch.provider
 ): WebSearchConfigurationIssue | null {
-  switch (configuration.provider) {
+  switch (provider) {
     case 'build-in':
-      // [Chatbox CE] never ask the user to sign in to Chatbox AI
       if (CE_DISABLE_REMOTE_CONTENT) {
         return 'provider-unavailable'
       }
-      return licenseKey ? null : 'chatbox-ai-sign-in'
-    case 'tavily':
-      return configuration.tavilyApiKey ? null : 'tavily-api-key'
-    case 'bocha':
-      return configuration.bochaApiKey ? null : 'bocha-api-key'
-    case 'querit':
-      return configuration.queritApiKey ? null : 'querit-api-key'
+      return settings.licenseKey ? null : 'chatbox-ai-sign-in'
     case 'searxng':
-      return configuration.searxngBaseUrl?.trim() ? null : 'searxng-instance'
+      return settings.extension.webSearch.searxngBaseUrl?.trim() ? null : 'searxng-instance'
     case 'bing':
       return null
+    default:
+      return resolveNativeWebSearchApiKey(settings, provider).trim() ? null : (`${provider}-api-key` as const)
   }
 }

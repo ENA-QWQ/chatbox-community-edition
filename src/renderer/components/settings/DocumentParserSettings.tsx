@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AdaptiveSelect } from '@/components/AdaptiveSelect'
 import { CheckedFieldRow } from '@/components/settings/CheckedFieldRow'
+import { DeepSeekProviderKeyRow } from '@/components/settings/DeepSeekProviderKeyRow'
 import { SettingRow, SettingsSection } from '@/components/settings/SettingsLayout'
 import platform from '@/platform'
 import { getPlatformDefaultDocumentParser, useSettingsStore } from '@/stores/settingsStore'
@@ -18,6 +19,7 @@ const ALL_PARSER_OPTIONS: {
   // [Chatbox CE] the 'chatbox-ai' cloud parser entry is filtered out below.
   { value: 'chatbox-ai', label: 'Chatbox AI' },
   { value: 'mineru', label: 'MinerU', desktopOnly: true }, // Only available on desktop (requires IPC)
+  { value: 'deepseek', label: 'DeepSeek' },
 ]
 
 // [Chatbox CE] descriptions no longer steer users toward Chatbox AI cloud parsing
@@ -28,6 +30,8 @@ const PARSER_DESCRIPTIONS: Record<DocumentParserType, string> = {
   'chatbox-ai':
     'Tries local parsing first without consuming compute points. If local parsing fails, Chatbox AI cloud parsing will be used and compute points will be consumed.',
   mineru: 'Third-party cloud parsing service, supports PDF and most Office files. Requires API token.',
+  deepseek:
+    'DeepSeek OCR reads PDF, Word, PowerPoint and image files; other files are parsed locally. Uses the API key configured for the DeepSeek model provider and is billed by DeepSeek per page.',
 }
 
 /** Parser choice and its credentials, as one settings section. */
@@ -109,6 +113,7 @@ export function DocumentParserSettings() {
           getKeyLabel={t('Get API Token') ?? undefined}
         />
       )}
+      {currentParserType === 'deepseek' && <DeepSeekProviderKeyRow />}
     </SettingsSection>
   )
 }

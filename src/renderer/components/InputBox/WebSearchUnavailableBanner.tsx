@@ -17,15 +17,12 @@ type BannerProps = { sessionId: string; errorCount: number; latestHasError: bool
 export function WebSearchUnavailableBanner(props: BannerProps) {
   const { t } = useTranslation()
   const isSmallScreen = useIsSmallScreen()
-  const webSearchConfiguration = useSettingsStore((state) => state.extension.webSearch)
-  const licenseKey = useSettingsStore((state) => state.licenseKey)
+  const webSearchConfigurationIssue = useSettingsStore((state) => getWebSearchConfigurationIssue(state))
   const [, refreshDismissedState] = useState(0)
   const sessionId = props.sessionId
   const dismissed = dismissedSessionIds.has(sessionId)
-  const issue = getWebSearchConfigurationIssue(webSearchConfiguration, licenseKey)
-  // [Chatbox CE] legacy 'build-in' configs surface a neutral provider-unavailable notice
-  const providerUnavailable = CE_DISABLE_REMOTE_CONTENT && issue === 'provider-unavailable'
-  const stillRequiresChatboxSignIn = issue === 'chatbox-ai-sign-in'
+  const providerUnavailable = CE_DISABLE_REMOTE_CONTENT && webSearchConfigurationIssue === 'provider-unavailable'
+  const stillRequiresChatboxSignIn = webSearchConfigurationIssue === 'chatbox-ai-sign-in'
   if (!stillRequiresChatboxSignIn && !providerUnavailable) return null
   if (dismissed || props.errorCount === 0 || props.latestHasError !== false) return null
 
