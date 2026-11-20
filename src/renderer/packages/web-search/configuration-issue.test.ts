@@ -9,11 +9,11 @@ function readiness(
 }
 
 describe('getWebSearchConfigurationIssue', () => {
-  it('requires sign-in only for the built-in provider without a license', () => {
-    expect(getWebSearchConfigurationIssue(readiness({ provider: 'build-in' }))).toBe('chatbox-ai-sign-in')
+  it('reports the built-in provider as unavailable regardless of license', () => {
+    expect(getWebSearchConfigurationIssue(readiness({ provider: 'build-in' }))).toBe('provider-unavailable')
     expect(
       getWebSearchConfigurationIssue(readiness({ provider: 'build-in' }, { licenseKey: 'license-key' }))
-    ).toBeNull()
+    ).toBe('provider-unavailable')
     expect(getWebSearchConfigurationIssue(readiness({ provider: 'bing' }))).toBeNull()
   })
 

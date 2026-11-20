@@ -76,19 +76,26 @@ describe('WebSearchUnavailableBanner', () => {
     render(banner(`hidden-${count}-${latest}`, count, latest))
     expect(screen.queryByRole('status')).toBeNull()
   })
-  it('opens sign-in and provider settings on desktop', () => {
+  it('shows a neutral provider notice and provider settings on desktop', () => {
     render(banner('desktop-actions', 1, false))
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in to Chatbox AI' }))
-    expect(mocks.navigateToSettings).toHaveBeenCalledWith()
+    expect(
+      screen.getByText(
+        'Web Search was skipped: the configured search provider is not available in this build. Choose another provider in Settings.'
+      )
+    ).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Sign in to Chatbox AI' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Web Search settings' }))
     expect(mocks.navigateToSettings).toHaveBeenCalledWith('/web-search')
   })
-  it('offers the compact sign-in action on narrow screens', () => {
+  it('shows the compact neutral notice on narrow screens', () => {
     mocks.isSmallScreen = true
     render(banner('narrow-actions', 1, false))
-    expect(screen.getByText('Web Search was skipped: sign in to Chatbox AI')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
-    expect(mocks.navigateToSettings).toHaveBeenCalledWith()
+    expect(
+      screen.getByText(
+        'Web Search was skipped: the configured search provider is not available in this build. Choose another provider in Settings.'
+      )
+    ).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Sign in' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Web Search settings' })).toBeNull()
   })
   it('keeps dismissal scoped to a conversation', () => {
@@ -100,10 +107,10 @@ describe('WebSearchUnavailableBanner', () => {
     view.rerender(banner('dismissed', 2, false))
     expect(screen.queryByRole('status')).toBeNull()
   })
-  it('hides once the user signs in', () => {
+  it('stays visible regardless of license for the built-in provider', () => {
     mocks.licenseKey = 'licensed'
     render(banner('licensed', 1, false))
-    expect(screen.queryByRole('status')).toBeNull()
+    expect(screen.getByRole('status')).toBeTruthy()
   })
   it('hides when the user selects another provider', () => {
     mocks.webSearchProvider = 'tavily'

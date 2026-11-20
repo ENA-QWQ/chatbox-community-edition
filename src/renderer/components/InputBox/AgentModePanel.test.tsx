@@ -522,17 +522,17 @@ describe('AgentModePanel capability availability', () => {
     )
   })
 
-  test('explains that built-in Web Search needs sign-in without changing the enabled switch', () => {
+  test('explains that the built-in Web Search provider is unavailable without changing the enabled switch', () => {
     renderPanel({ webBrowsingMode: true })
 
-    expect(screen.getByText('Sign in required')).toBeTruthy()
+    expect(screen.getByText('Setup required')).toBeTruthy()
     expect(
-      screen.getByText('Chatbox AI Search needs sign-in. Web Search will be skipped while this setting is on.')
+      screen.getByText('The selected Web Search provider needs to be configured before it can run.')
     ).toBeTruthy()
     expect(screen.getByTestId(TestId.chat.webSearchToggle)).toHaveProperty('checked', true)
 
-    fireEvent.click(screen.getByRole('button', { name: /Sign in to Chatbox AI/ }))
-    expect(mocks.navigateToSettingsMock).toHaveBeenCalledWith(undefined)
+    fireEvent.click(screen.getByRole('button', { name: /Open Web Search settings/ }))
+    expect(mocks.navigateToSettingsMock).toHaveBeenCalledWith('/web-search')
   })
 
   test('allows selecting a Knowledge Base from Chat Mode', () => {
